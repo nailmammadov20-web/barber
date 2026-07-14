@@ -48,14 +48,14 @@ export default function Home() {
             BarberHub hər bərbərə öz xidmətləri, iş saatları və müştəriləri olan tamamilə
             müstəqil bir hesab verir. Heç bir bərbər digərini görmür.
           </p>
-          <div className="mt-2 flex w-full max-w-sm flex-col gap-3 sm:flex-row">
+          <div className="mt-2 flex w-full max-w-md flex-col gap-4 sm:flex-row">
             <Button
               size="lg"
-              className="h-12 flex-1 rounded-xl text-base shadow-lg shadow-black/30"
+              className="h-14 w-full flex-1 rounded-2xl text-lg font-semibold shadow-lg shadow-black/30"
               nativeButton={false}
               render={
                 <Link href="/register">
-                  <UserPlus className="size-4" />
+                  <UserPlus className="size-5" />
                   Qeydiyyatdan keç
                 </Link>
               }
@@ -63,11 +63,11 @@ export default function Home() {
             <Button
               size="lg"
               variant="outline"
-              className="h-12 flex-1 rounded-xl border-white/40 bg-white/10 text-base text-white backdrop-blur-sm hover:bg-white/20 hover:text-white"
+              className="h-14 w-full flex-1 rounded-2xl border-white/50 bg-white/10 text-lg font-semibold text-white backdrop-blur-sm hover:bg-white/20 hover:text-white"
               nativeButton={false}
               render={
                 <Link href="/login">
-                  <LogIn className="size-4" />
+                  <LogIn className="size-5" />
                   Daxil ol
                 </Link>
               }
