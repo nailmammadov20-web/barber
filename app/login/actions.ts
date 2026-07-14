@@ -4,8 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
 import { loginSchema, type LoginInput } from "@/lib/validation/auth";
+import type { Role } from "@/lib/generated/prisma/client";
 
-type LoginResult = { success: true } | { success: false; error: string };
+type LoginResult = { success: true; role: Role } | { success: false; error: string };
 
 export async function loginBarber(input: LoginInput): Promise<LoginResult> {
   const parsed = loginSchema.safeParse(input);
@@ -25,5 +26,5 @@ export async function loginBarber(input: LoginInput): Promise<LoginResult> {
   }
 
   await createSession(user.id);
-  return { success: true };
+  return { success: true, role: user.role };
 }

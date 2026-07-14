@@ -36,7 +36,7 @@ export function LoginForm() {
         return;
       }
       toast.success("Xoş gəldiniz!");
-      router.push("/dashboard");
+      router.push(result.role === "SUPER_ADMIN" ? "/admin" : "/dashboard");
       router.refresh();
     });
   }

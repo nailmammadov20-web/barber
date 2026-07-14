@@ -38,6 +38,23 @@ export async function getCurrentBarber() {
   return { user: session.user, barber: session.user.barberProfile };
 }
 
+export async function getCurrentAdmin() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE)?.value;
+  if (!token) return null;
+
+  const session = await prisma.session.findUnique({
+    where: { token },
+    include: { user: true },
+  });
+
+  if (!session || session.expiresAt < new Date() || session.user.role !== "SUPER_ADMIN") {
+    return null;
+  }
+
+  return { user: session.user };
+}
+
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
