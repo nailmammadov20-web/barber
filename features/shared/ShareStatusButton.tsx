@@ -34,6 +34,39 @@ function roundRect(
   ctx.closePath();
 }
 
+const BACKGROUND_ICONS: { x: number; y: number; icon: string; size: number; rotate: number }[] = [
+  { x: 130, y: 160, icon: "✂️", size: 110, rotate: -18 },
+  { x: 950, y: 150, icon: "💈", size: 140, rotate: 14 },
+  { x: 90, y: 560, icon: "🪒", size: 100, rotate: 22 },
+  { x: 990, y: 520, icon: "✂️", size: 120, rotate: -25 },
+  { x: 110, y: 900, icon: "💈", size: 110, rotate: -10 },
+  { x: 970, y: 900, icon: "🪒", size: 100, rotate: 16 },
+  { x: 540, y: 1250, icon: "✨", size: 80, rotate: 0 },
+  { x: 130, y: 1780, icon: "✂️", size: 100, rotate: 18 },
+  { x: 950, y: 1780, icon: "💈", size: 110, rotate: -14 },
+  { x: 540, y: 1850, icon: "🪒", size: 70, rotate: 8 },
+];
+
+// Faint, scattered barbershop icons behind everything else so a glance at the
+// thumbnail (before any text is legible) already reads as "this is a barber",
+// not just a generic colored card. Drawn first so the photo/name/CTA box paint
+// over any icon that would otherwise sit under them.
+function drawBackgroundIcons(ctx: CanvasRenderingContext2D) {
+  ctx.save();
+  ctx.globalAlpha = 0.16;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  for (const item of BACKGROUND_ICONS) {
+    ctx.save();
+    ctx.translate(item.x, item.y);
+    ctx.rotate((item.rotate * Math.PI) / 180);
+    ctx.font = `${item.size}px system-ui, sans-serif`;
+    ctx.fillText(item.icon, 0, 0);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
 const MAX_BIO_LINES = 4;
 
 function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, maxLines: number): string[] {
@@ -81,6 +114,8 @@ async function generateStatusImage(
   gradient.addColorStop(1, "oklch(0.28 0.07 40)");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+  drawBackgroundIcons(ctx);
 
   const photoRadius = 220;
   const photoCenterX = WIDTH / 2;
