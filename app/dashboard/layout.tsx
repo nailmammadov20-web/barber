@@ -13,7 +13,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 py-8 md:flex-row">
+    <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 py-8 pb-20 md:flex-row md:pb-8">
       <aside className="flex flex-col gap-4 md:w-60">
         <div className="flex items-center gap-3 rounded-xl border bg-card px-3 py-3">
           {session.barber.photoUrl ? (
@@ -28,7 +28,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               {session.barber.fullName.charAt(0)}
             </div>
           )}
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium">{session.barber.fullName}</p>
             <Link
               href={`/barber/${session.barber.slug}`}
@@ -38,11 +38,22 @@ export default async function DashboardLayout({ children }: { children: React.Re
               /barber/{session.barber.slug}
             </Link>
           </div>
+          <form action={logout} className="md:hidden">
+            <Button
+              type="submit"
+              variant="ghost"
+              size="icon-sm"
+              className="text-destructive hover:text-destructive"
+              aria-label="Çıxış"
+            >
+              <LogOut className="size-4" />
+            </Button>
+          </form>
         </div>
 
         <DashboardNav />
 
-        <form action={logout}>
+        <form action={logout} className="hidden md:block">
           <Button
             type="submit"
             variant="ghost"

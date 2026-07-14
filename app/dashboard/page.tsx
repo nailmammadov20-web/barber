@@ -79,16 +79,16 @@ export default async function DashboardOverviewPage() {
 
       <SetupChecklist hasServices={servicesCount > 0} hasWorkingHours={workingHoursCount > 0} />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {stats.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="flex items-center gap-4">
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
-                <stat.icon className="size-5" />
+          <Card key={stat.label} size="sm">
+            <CardContent className="flex flex-col gap-2">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary sm:size-11">
+                <stat.icon className="size-4 sm:size-5" />
               </div>
               <div>
-                <p className="text-2xl font-semibold">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                <p className="text-xl font-semibold sm:text-2xl">{stat.value}</p>
+                <p className="text-xs text-muted-foreground sm:text-sm">{stat.label}</p>
               </div>
             </CardContent>
           </Card>
