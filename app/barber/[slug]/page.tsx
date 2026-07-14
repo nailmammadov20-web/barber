@@ -7,6 +7,7 @@ import { ServicesListCard } from "@/features/public/ServicesListCard";
 import { LocationCard } from "@/features/public/LocationCard";
 import { SocialLinks } from "@/features/public/SocialLinks";
 import { ProfileViewBadge } from "@/features/public/ProfileViewBadge";
+import { MobileBookingCta } from "@/features/public/MobileBookingCta";
 import { SOCIAL_GRADIENTS } from "@/lib/social";
 import { getViewStats } from "@/lib/profileViews";
 
@@ -29,7 +30,7 @@ export default async function BarberPublicPage({
   const viewStats = await getViewStats(barber.id);
 
   return (
-    <main className="min-h-screen pb-16">
+    <main className="min-h-screen pb-24 lg:pb-16">
       <div className="relative z-0 h-44 w-full overflow-hidden sm:h-64 lg:h-72">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -123,7 +124,7 @@ export default async function BarberPublicPage({
           </div>
 
           {/* Booking column */}
-          <div className="lg:pt-6">
+          <div id="booking" className="scroll-mt-4 lg:pt-6">
             {barber.services.length === 0 ? (
               <p className="text-center text-sm text-muted-foreground lg:text-left">
                 Bu bərbər hələ xidmət əlavə etməyib.
@@ -148,6 +149,8 @@ export default async function BarberPublicPage({
           </div>
         </div>
       </div>
+
+      {barber.services.length > 0 && <MobileBookingCta targetId="booking" />}
     </main>
   );
 }

@@ -49,7 +49,7 @@ export function ProfileViewBadge({
   }, [barberId]);
 
   return (
-    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+    <span className="flex flex-wrap items-center justify-center gap-1.5 text-xs text-muted-foreground lg:justify-start">
       <Eye className="size-3.5 shrink-0" />
       {formatCount(totalViews)} baxış
       {currentlyViewing > 0 && (
