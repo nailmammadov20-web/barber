@@ -6,8 +6,19 @@ import { Copy, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ShareStatusButton } from "@/features/dashboard/ShareStatusButton";
 
-export function PublicLinkCard({ slug }: { slug: string }) {
+export function PublicLinkCard({
+  slug,
+  fullName,
+  photoUrl,
+  city,
+}: {
+  slug: string;
+  fullName: string;
+  photoUrl: string | null;
+  city: string;
+}) {
   const [isCopying, startTransition] = useTransition();
   const path = `/barber/${slug}`;
 
@@ -30,11 +41,12 @@ export function PublicLinkCard({ slug }: { slug: string }) {
           <p className="text-sm font-medium">Rezervasiya linkiniz</p>
           <p className="mt-0.5 truncate text-sm text-muted-foreground">barberhub.az{path}</p>
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className="flex flex-wrap shrink-0 gap-2">
           <Button type="button" variant="outline" size="sm" onClick={handleCopy} disabled={isCopying}>
             <Copy className="size-4" />
             Linki kopyala
           </Button>
+          <ShareStatusButton fullName={fullName} photoUrl={photoUrl} city={city} path={path} />
           <Button
             size="sm"
             nativeButton={false}

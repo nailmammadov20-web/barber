@@ -75,7 +75,12 @@ export default async function DashboardOverviewPage() {
           }))}
       />
 
-      <PublicLinkCard slug={session.barber.slug} />
+      <PublicLinkCard
+        slug={session.barber.slug}
+        fullName={session.barber.fullName}
+        photoUrl={session.barber.photoUrl}
+        city={session.barber.city}
+      />
 
       <SetupChecklist hasServices={servicesCount > 0} hasWorkingHours={workingHoursCount > 0} />
 
