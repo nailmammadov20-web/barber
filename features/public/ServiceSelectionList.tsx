@@ -51,11 +51,11 @@ export function ServiceSelectionList({
         </div>
       )}
 
-      <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto pr-1 sm:max-h-96">
-        {filtered.length === 0 ? (
-          <p className="py-4 text-center text-sm text-muted-foreground">Uyğun xidmət tapılmadı.</p>
-        ) : (
-          filtered.map((service) => {
+      {filtered.length === 0 ? (
+        <p className="py-4 text-center text-sm text-muted-foreground">Uyğun xidmət tapılmadı.</p>
+      ) : (
+        <div className="flex max-h-[50vh] flex-wrap gap-2 overflow-y-auto py-0.5 sm:max-h-72">
+          {filtered.map((service) => {
             const checked = value.includes(service.id);
             return (
               <button
@@ -64,30 +64,22 @@ export function ServiceSelectionList({
                 onClick={() => toggle(service.id)}
                 aria-pressed={checked}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors",
-                  checked ? "border-primary bg-primary/5" : "hover:bg-muted/50"
+                  "inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors",
+                  checked
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-input bg-background text-foreground hover:border-primary/50 hover:bg-muted"
                 )}
               >
-                <div
-                  className={cn(
-                    "flex size-4 shrink-0 items-center justify-center rounded border",
-                    checked ? "border-primary bg-primary text-primary-foreground" : "border-input"
-                  )}
-                >
-                  {checked && <Check className="size-3" />}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{service.name}</p>
-                  <p className="text-xs text-muted-foreground">{service.durationMinutes} dəqiqə</p>
-                </div>
-                <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                {checked && <Check className="size-3.5 shrink-0" />}
+                <span>{service.name}</span>
+                <span className={cn("text-xs", checked ? "text-primary-foreground/80" : "text-muted-foreground")}>
                   {service.price} AZN
                 </span>
               </button>
             );
-          })
-        )}
-      </div>
+          })}
+        </div>
+      )}
 
       {selected.length > 0 && (
         <p className="text-xs text-muted-foreground">
