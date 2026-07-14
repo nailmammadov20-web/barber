@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { CalendarCheck, MessageCircleMore, Scissors, UserPlus } from "lucide-react";
+import { CalendarCheck, LogIn, MessageCircleMore, Scissors, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -51,16 +51,26 @@ export default function Home() {
           <div className="mt-2 flex w-full max-w-sm flex-col gap-3 sm:flex-row">
             <Button
               size="lg"
-              className="flex-1"
+              className="h-12 flex-1 rounded-xl text-base shadow-lg shadow-black/30"
               nativeButton={false}
-              render={<Link href="/register">Qeydiyyatdan keç</Link>}
+              render={
+                <Link href="/register">
+                  <UserPlus className="size-4" />
+                  Qeydiyyatdan keç
+                </Link>
+              }
             />
             <Button
               size="lg"
               variant="outline"
-              className="flex-1 border-white/30 bg-white/5 text-white hover:bg-white/15 hover:text-white"
+              className="h-12 flex-1 rounded-xl border-white/40 bg-white/10 text-base text-white backdrop-blur-sm hover:bg-white/20 hover:text-white"
               nativeButton={false}
-              render={<Link href="/login">Daxil ol</Link>}
+              render={
+                <Link href="/login">
+                  <LogIn className="size-4" />
+                  Daxil ol
+                </Link>
+              }
             />
           </div>
         </div>

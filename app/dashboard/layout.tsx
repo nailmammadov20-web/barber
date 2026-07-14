@@ -13,7 +13,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 py-8 pb-20 md:flex-row md:pb-8">
+    <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pt-16 pb-20 md:flex-row md:pt-8 md:pb-8">
       <aside className="flex flex-col gap-4 md:w-60">
         <div className="flex items-center gap-3 rounded-xl border bg-card px-3 py-3">
           {session.barber.photoUrl ? (
