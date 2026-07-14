@@ -3,24 +3,20 @@ import { CalendarClock, CircleCheckBig, Hourglass, Wallet } from "lucide-react";
 import { getCurrentBarber } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { toDateOnly } from "@/lib/slots";
+import { todayInBaku } from "@/lib/timezone";
 import { Card, CardContent } from "@/components/ui/card";
 import { PublicLinkCard } from "@/features/dashboard/PublicLinkCard";
 import { SetupChecklist } from "@/features/dashboard/SetupChecklist";
 import { BookingsList } from "@/features/dashboard/BookingsList";
 import { OverdueBookingsPrompt } from "@/features/dashboard/OverdueBookingsPrompt";
 
-function todayString(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-}
-
 export default async function DashboardOverviewPage() {
   const session = await getCurrentBarber();
   if (!session) redirect("/login");
 
   const barberId = session.barber.id;
-  const today = toDateOnly(todayString());
-  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const today = toDateOnly(todayInBaku());
+  const monthStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
 
   const [
     todayBookings,

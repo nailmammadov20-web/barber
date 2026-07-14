@@ -29,14 +29,15 @@ import { createBooking, fetchAvailableSlots } from "@/app/barber/[slug]/actions"
 import { ServiceSelectionList, type PublicService } from "@/features/public/ServiceSelectionList";
 import { SlotPicker } from "@/features/public/SlotPicker";
 import { formatDateDisplay, formatDateInput } from "@/lib/formatDate";
+import { todayInBakuAsDate } from "@/lib/timezone";
 
 const CUSTOMER_STORAGE_KEY = "barberhub_customer";
 const MAX_DAYS_AHEAD = 30;
 
 export function PublicBookingForm({ services }: { services: PublicService[] }) {
-  const today = new Date();
-  const maxDate = new Date();
-  maxDate.setDate(today.getDate() + MAX_DAYS_AHEAD);
+  const today = todayInBakuAsDate();
+  const maxDate = todayInBakuAsDate();
+  maxDate.setDate(maxDate.getDate() + MAX_DAYS_AHEAD);
 
   const form = useForm<BookingInput>({
     resolver: zodResolver(bookingSchema),

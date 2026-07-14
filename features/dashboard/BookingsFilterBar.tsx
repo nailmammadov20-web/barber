@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { formatDateDisplay, formatDateInput } from "@/lib/formatDate";
+import { todayInBaku } from "@/lib/timezone";
 
 const STATUS_OPTIONS: { value: string; label: string }[] = [
   { value: "all", label: "Hamısı" },
@@ -32,11 +33,6 @@ function shiftDate(dateString: string, days: number): string {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
-}
-
-function todayString(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 }
 
 export function BookingsFilterBar({ date, status }: { date: string; status: string }) {
@@ -137,7 +133,7 @@ export function BookingsFilterBar({ date, status }: { date: string; status: stri
           >
             <ChevronRight className="size-4" />
           </Button>
-          <Button type="button" variant="ghost" size="sm" onClick={() => updateParams({ date: todayString() })}>
+          <Button type="button" variant="ghost" size="sm" onClick={() => updateParams({ date: todayInBaku() })}>
             Bugün
           </Button>
         </div>

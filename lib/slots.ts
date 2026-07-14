@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { nowMinutesInBaku, todayInBaku } from "@/lib/timezone";
 
 const SLOT_MINUTES = 30;
 
@@ -15,14 +16,6 @@ function minutesToTime(minutes: number): string {
 
 export function toDateOnly(dateString: string): Date {
   return new Date(`${dateString}T00:00:00.000Z`);
-}
-
-function todayLocalDateString(): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
 }
 
 /**
@@ -63,9 +56,8 @@ export async function getAvailableSlots(
     return { start, end: start + booking.durationMinutes };
   });
 
-  const isToday = dateString === todayLocalDateString();
-  const now = new Date();
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const isToday = dateString === todayInBaku();
+  const nowMinutes = nowMinutesInBaku();
 
   const slots: string[] = [];
   for (let start = startMinutes; start + durationMinutes <= endMinutes; start += SLOT_MINUTES) {

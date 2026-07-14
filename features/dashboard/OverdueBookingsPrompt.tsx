@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { setBookingStatus } from "@/app/dashboard/bookings/actions";
+import { nowMinutesInBaku } from "@/lib/timezone";
 
 export type OverdueBooking = {
   id: string;
@@ -23,9 +24,7 @@ export type OverdueBooking = {
 
 function isPast(timeSlot: string): boolean {
   const [hours, minutes] = timeSlot.split(":").map(Number);
-  const now = new Date();
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
-  return hours * 60 + minutes < nowMinutes;
+  return hours * 60 + minutes < nowMinutesInBaku();
 }
 
 export function OverdueBookingsPrompt({ bookings }: { bookings: OverdueBooking[] }) {

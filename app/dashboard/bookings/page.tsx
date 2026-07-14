@@ -2,14 +2,10 @@ import { redirect } from "next/navigation";
 import { getCurrentBarber } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { toDateOnly } from "@/lib/slots";
+import { todayInBaku } from "@/lib/timezone";
 import { BookingsFilterBar } from "@/features/dashboard/BookingsFilterBar";
 import { BookingsList } from "@/features/dashboard/BookingsList";
 import type { Prisma } from "@/lib/generated/prisma/client";
-
-function todayString(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-}
 
 const VALID_STATUSES = ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED", "NO_SHOW"] as const;
 
@@ -22,7 +18,7 @@ export default async function DashboardBookingsPage({
   if (!session) redirect("/login");
 
   const params = await searchParams;
-  const date = params.date && /^\d{4}-\d{2}-\d{2}$/.test(params.date) ? params.date : todayString();
+  const date = params.date && /^\d{4}-\d{2}-\d{2}$/.test(params.date) ? params.date : todayInBaku();
   const status = params.status && (VALID_STATUSES as readonly string[]).includes(params.status) ? params.status : "";
   const query = params.q?.trim() ?? "";
 
