@@ -8,6 +8,7 @@ import { LocationCard } from "@/features/public/LocationCard";
 import { SocialLinks } from "@/features/public/SocialLinks";
 import { ProfileViewBadge } from "@/features/public/ProfileViewBadge";
 import { MobileBookingCta } from "@/features/public/MobileBookingCta";
+import { ScrollToMapButton } from "@/features/public/ScrollToMapButton";
 import { SOCIAL_GRADIENTS } from "@/lib/social";
 import { getViewStats } from "@/lib/profileViews";
 
@@ -75,6 +76,7 @@ export default async function BarberPublicPage({
                 <span className="flex items-center gap-1.5">
                   <MapPin className="size-3.5 shrink-0" />
                   {barber.city}
+                  <ScrollToMapButton targetId="location" />
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Phone className="size-3.5 shrink-0" />
@@ -103,10 +105,6 @@ export default async function BarberPublicPage({
               {barber.bio && (
                 <p className="mt-3 max-w-sm text-sm text-muted-foreground">{barber.bio}</p>
               )}
-            </div>
-
-            <div className="mt-6">
-              <LocationCard address={barber.address} city={barber.city} />
             </div>
 
             {barber.services.length > 0 && (
@@ -147,6 +145,11 @@ export default async function BarberPublicPage({
               </Card>
             )}
           </div>
+        </div>
+
+        <div id="location" className="mt-10 scroll-mt-4">
+          <h2 className="mb-3 text-lg font-semibold">Məkan</h2>
+          <LocationCard address={barber.address} city={barber.city} />
         </div>
       </div>
 
