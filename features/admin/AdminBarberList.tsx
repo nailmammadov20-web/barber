@@ -7,6 +7,7 @@ import { ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ConfirmActionButton } from "@/features/dashboard/ConfirmActionButton";
+import { ResetPasswordButton } from "@/features/admin/ResetPasswordButton";
 import { toggleBarberActive } from "@/app/admin/actions";
 
 export type AdminBarberItem = {
@@ -68,19 +69,22 @@ export function AdminBarberList({ barbers }: { barbers: AdminBarberItem[] }) {
                 <ExternalLink className="size-3" />
               </Link>
             </div>
-            <ConfirmActionButton
-              label={barber.active ? "Deaktiv et" : "Aktiv et"}
-              variant={barber.active ? "destructive" : "default"}
-              disabled={isPending}
-              title={barber.active ? "Bərbəri deaktiv edirsiniz?" : "Bərbəri aktiv edirsiniz?"}
-              description={
-                barber.active
-                  ? `"${barber.fullName}" ictimai səhifəsi dərhal əlçatmaz olacaq (404). Rezervasiya qəbul edə bilməyəcək.`
-                  : `"${barber.fullName}" ictimai səhifəsi yenidən əlçatan olacaq və rezervasiya qəbul edə biləcək.`
-              }
-              confirmLabel="Bəli"
-              onConfirm={() => handleToggle(barber)}
-            />
+            <div className="flex shrink-0 flex-wrap items-center gap-2">
+              <ResetPasswordButton barberId={barber.id} fullName={barber.fullName} />
+              <ConfirmActionButton
+                label={barber.active ? "Deaktiv et" : "Aktiv et"}
+                variant={barber.active ? "destructive" : "default"}
+                disabled={isPending}
+                title={barber.active ? "Bərbəri deaktiv edirsiniz?" : "Bərbəri aktiv edirsiniz?"}
+                description={
+                  barber.active
+                    ? `"${barber.fullName}" ictimai səhifəsi dərhal əlçatmaz olacaq (404). Rezervasiya qəbul edə bilməyəcək.`
+                    : `"${barber.fullName}" ictimai səhifəsi yenidən əlçatan olacaq və rezervasiya qəbul edə biləcək.`
+                }
+                confirmLabel="Bəli"
+                onConfirm={() => handleToggle(barber)}
+              />
+            </div>
           </CardContent>
         </Card>
       ))}
