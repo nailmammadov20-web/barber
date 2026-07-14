@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -54,7 +54,12 @@ export function ServiceSelectionList({
       {filtered.length === 0 ? (
         <p className="py-4 text-center text-sm text-muted-foreground">Uyğun xidmət tapılmadı.</p>
       ) : (
-        <div className="flex max-h-[50vh] flex-wrap gap-2 overflow-y-auto py-0.5 sm:max-h-72">
+        // Fixed 2-column grid (not flex-wrap) so every cell has the same width —
+        // toggling a selection never changes that item's size, so nothing else in
+        // the grid shifts position. A wrap-based chip layout looked different but
+        // reflowed everything after the tapped item whenever a checkmark/state
+        // change altered its width, which felt broken on mobile.
+        <div className="grid max-h-[50vh] grid-cols-2 gap-2 overflow-y-auto py-0.5 sm:max-h-72">
           {filtered.map((service) => {
             const checked = value.includes(service.id);
             return (
@@ -64,14 +69,13 @@ export function ServiceSelectionList({
                 onClick={() => toggle(service.id)}
                 aria-pressed={checked}
                 className={cn(
-                  "inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors",
+                  "flex flex-col items-start gap-1 rounded-xl border px-3 py-2.5 text-left transition-colors",
                   checked
                     ? "border-primary bg-primary text-primary-foreground"
-                    : "border-input bg-background text-foreground hover:border-primary/50 hover:bg-muted"
+                    : "border-input bg-background hover:border-primary/50 hover:bg-muted"
                 )}
               >
-                {checked && <Check className="size-3.5 shrink-0" />}
-                <span>{service.name}</span>
+                <span className="text-sm leading-tight font-medium">{service.name}</span>
                 <span className={cn("text-xs", checked ? "text-primary-foreground/80" : "text-muted-foreground")}>
                   {service.price} AZN
                 </span>
