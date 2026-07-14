@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ConfirmActionButton } from "@/features/dashboard/ConfirmActionButton";
 import { ResetPasswordButton } from "@/features/admin/ResetPasswordButton";
+import { EditBioDialog } from "@/features/admin/EditBioDialog";
 import { toggleBarberActive } from "@/app/admin/actions";
 
 export type AdminBarberItem = {
@@ -20,6 +21,7 @@ export type AdminBarberItem = {
   active: boolean;
   bookingsCount: number;
   revenue: number;
+  bio: string;
   createdAtDisplay: string;
 };
 
@@ -70,8 +72,14 @@ export function AdminBarberList({ barbers }: { barbers: AdminBarberItem[] }) {
                 /barber/{barber.slug}
                 <ExternalLink className="size-3" />
               </Link>
+              {barber.bio && (
+                <p className="mt-1 line-clamp-2 max-w-md text-xs text-muted-foreground italic">
+                  &ldquo;{barber.bio}&rdquo;
+                </p>
+              )}
             </div>
             <div className="flex shrink-0 flex-wrap items-center gap-2">
+              <EditBioDialog barberId={barber.id} fullName={barber.fullName} bio={barber.bio} />
               <ResetPasswordButton barberId={barber.id} fullName={barber.fullName} />
               <ConfirmActionButton
                 label={barber.active ? "Deaktiv et" : "Aktiv et"}

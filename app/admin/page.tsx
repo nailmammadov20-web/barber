@@ -42,6 +42,7 @@ export default async function AdminPage() {
     active: barber.active,
     bookingsCount: barber._count.bookings,
     revenue: revenueByBarber.get(barber.id) ?? 0,
+    bio: barber.bio ?? "",
     createdAtDisplay: formatDateDisplay(barber.createdAt.toISOString().slice(0, 10)),
   }));
 

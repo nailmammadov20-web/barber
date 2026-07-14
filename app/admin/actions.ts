@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentAdmin } from "@/lib/auth/session";
 import { hashPassword } from "@/lib/auth/password";
+import { profileSchema } from "@/lib/validation/profile";
 
 type ActionResult = { success: true } | { success: false; error: string };
 type ResetPasswordResult = { success: true; newPassword: string } | { success: false; error: string };
@@ -42,4 +43,24 @@ export async function resetBarberPassword(barberId: string): Promise<ResetPasswo
   ]);
 
   return { success: true, newPassword };
+}
+
+export async function updateBarberBio(barberId: string, bio: string): Promise<ActionResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+
+  const parsed = profileSchema.shape.bio.safeParse(bio);
+  if (!parsed.success) return { success: false, error: "Mətn 500 simvoldan uzun ola bilməz." };
+
+  const barber = await prisma.barberProfile.findUnique({ where: { id: barberId } });
+  if (!barber) return { success: false, error: "Bərbər tapılmadı." };
+
+  await prisma.barberProfile.update({
+    where: { id: barberId },
+    data: { bio: parsed.data || null },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath(`/barber/${barber.slug}`);
+  return { success: true };
 }
