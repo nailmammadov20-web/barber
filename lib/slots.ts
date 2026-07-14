@@ -17,6 +17,14 @@ export function toDateOnly(dateString: string): Date {
   return new Date(`${dateString}T00:00:00.000Z`);
 }
 
+function todayLocalDateString(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 /**
  * Returns start times where a booking of `durationMinutes` fits entirely within
  * working hours without overlapping any existing PENDING/CONFIRMED booking's
@@ -55,8 +63,13 @@ export async function getAvailableSlots(
     return { start, end: start + booking.durationMinutes };
   });
 
+  const isToday = dateString === todayLocalDateString();
+  const now = new Date();
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
   const slots: string[] = [];
   for (let start = startMinutes; start + durationMinutes <= endMinutes; start += SLOT_MINUTES) {
+    if (isToday && start <= nowMinutes) continue;
     const end = start + durationMinutes;
     const overlaps = busyRanges.some((range) => start < range.end && end > range.start);
     if (!overlaps) {
