@@ -71,6 +71,7 @@ model BarberProfile {
   services     Service[]
   workingHours WorkingHour[]
   bookings     Booking[]
+  profileViews ProfileView[]
 }
 
 model Service {
@@ -124,4 +125,16 @@ model BookingService {
   durationMinutes Int
 
   @@unique([bookingId, serviceId])
+}
+
+model ProfileView {
+  id         String        @id @default(cuid())
+  barberId   String
+  barber     BarberProfile @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  visitorId  String
+  lastSeenAt DateTime      @default(now())
+  createdAt  DateTime      @default(now())
+
+  @@unique([barberId, visitorId])
+  @@index([barberId, lastSeenAt])
 }

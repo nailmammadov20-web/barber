@@ -6,7 +6,9 @@ import { PublicBookingForm } from "@/features/public/PublicBookingForm";
 import { ServicesListCard } from "@/features/public/ServicesListCard";
 import { LocationCard } from "@/features/public/LocationCard";
 import { SocialLinks } from "@/features/public/SocialLinks";
+import { ProfileViewBadge } from "@/features/public/ProfileViewBadge";
 import { SOCIAL_GRADIENTS } from "@/lib/social";
+import { getViewStats } from "@/lib/profileViews";
 
 export default async function BarberPublicPage({
   params,
@@ -23,6 +25,8 @@ export default async function BarberPublicPage({
   if (!barber || !barber.active) {
     notFound();
   }
+
+  const viewStats = await getViewStats(barber.id);
 
   return (
     <main className="min-h-screen pb-16">
@@ -75,6 +79,14 @@ export default async function BarberPublicPage({
                   <Phone className="size-3.5 shrink-0" />
                   {barber.phone}
                 </span>
+              </div>
+
+              <div className="mt-2">
+                <ProfileViewBadge
+                  barberId={barber.id}
+                  initialTotalViews={viewStats.totalViews}
+                  initialCurrentlyViewing={viewStats.currentlyViewing}
+                />
               </div>
 
               <SocialLinks

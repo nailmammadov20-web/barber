@@ -1,9 +1,15 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
+import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getAvailableSlots, toDateOnly } from "@/lib/slots";
+import { getViewStats, trackProfileView, type ViewStats } from "@/lib/profileViews";
+import { getCurrentBarber } from "@/lib/auth/session";
 import { bookingSchema, type BookingInput } from "@/lib/validation/booking";
+
+const VISITOR_COOKIE = "pv_visitor";
 
 async function resolveActiveServices(serviceIds: string[]) {
   const uniqueIds = Array.from(new Set(serviceIds));
@@ -84,4 +90,28 @@ export async function createBooking(input: BookingInput): Promise<CreateBookingR
   revalidatePath("/dashboard/bookings");
   revalidatePath("/dashboard");
   return { success: true };
+}
+
+export async function pingProfileView(barberId: string): Promise<ViewStats> {
+  const session = await getCurrentBarber();
+  const isOwner = session?.barber.id === barberId;
+
+  const cookieStore = await cookies();
+  let visitorId = cookieStore.get(VISITOR_COOKIE)?.value;
+  if (!visitorId) {
+    visitorId = randomUUID();
+    cookieStore.set(VISITOR_COOKIE, visitorId, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      path: "/",
+    });
+  }
+
+  if (!isOwner) {
+    await trackProfileView(barberId, visitorId);
+  }
+
+  return getViewStats(barberId);
 }
