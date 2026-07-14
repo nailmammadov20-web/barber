@@ -221,7 +221,17 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
                 Saat
               </FormLabel>
               <FormControl>
-                <SlotPicker slots={slots} value={field.value} onChange={field.onChange} loading={slotsLoading} />
+                <SlotPicker
+                  slots={slots}
+                  value={field.value}
+                  onChange={field.onChange}
+                  loading={slotsLoading}
+                  emptyMessage={
+                    serviceIds.length === 0
+                      ? "Əvvəlcə yuxarıdan xidmət seçin."
+                      : "Bu tarixdə boş saat yoxdur."
+                  }
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

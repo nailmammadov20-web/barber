@@ -18,11 +18,13 @@ export function SlotPicker({
   value,
   onChange,
   loading,
+  emptyMessage = "Bu tarixdə boş saat yoxdur.",
 }: {
   slots: string[];
   value: string;
   onChange: (value: string) => void;
   loading?: boolean;
+  emptyMessage?: string;
 }) {
   if (loading) {
     return (
@@ -37,7 +39,7 @@ export function SlotPicker({
   if (slots.length === 0) {
     return (
       <p className="rounded-lg border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
-        Bu tarixdə boş saat yoxdur.
+        {emptyMessage}
       </p>
     );
   }
