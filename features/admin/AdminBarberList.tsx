@@ -19,6 +19,7 @@ export type AdminBarberItem = {
   slug: string;
   active: boolean;
   bookingsCount: number;
+  revenue: number;
   createdAtDisplay: string;
 };
 
@@ -58,7 +59,8 @@ export function AdminBarberList({ barbers }: { barbers: AdminBarberItem[] }) {
                 {barber.email} · {barber.phone}
               </p>
               <p className="text-sm text-muted-foreground">
-                {barber.city} · {barber.bookingsCount} rezervasiya · {barber.createdAtDisplay}
+                {barber.city} · {barber.bookingsCount} rezervasiya · {barber.revenue} AZN qazanc ·{" "}
+                {barber.createdAtDisplay}
               </p>
               <Link
                 href={`/barber/${barber.slug}`}

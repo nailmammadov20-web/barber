@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { CalendarCheck, CircleCheckBig, Users } from "lucide-react";
+import { CalendarCheck, CircleCheckBig, Users, Wallet } from "lucide-react";
 import { getCurrentAdmin } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { formatDateDisplay } from "@/lib/formatDate";
@@ -10,7 +10,7 @@ export default async function AdminPage() {
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/login");
 
-  const [barbers, totalBarbers, activeBarbers, totalBookings] = await Promise.all([
+  const [barbers, totalBarbers, activeBarbers, totalBookings, revenueBookings] = await Promise.all([
     prisma.barberProfile.findMany({
       include: { user: true, _count: { select: { bookings: true } } },
       orderBy: { createdAt: "desc" },
@@ -18,7 +18,19 @@ export default async function AdminPage() {
     prisma.barberProfile.count(),
     prisma.barberProfile.count({ where: { active: true } }),
     prisma.booking.count(),
+    prisma.booking.findMany({
+      where: { status: { in: ["CONFIRMED", "COMPLETED"] } },
+      select: { barberId: true, services: { select: { price: true } } },
+    }),
   ]);
+
+  const revenueByBarber = new Map<string, number>();
+  let totalRevenue = 0;
+  for (const booking of revenueBookings) {
+    const bookingTotal = booking.services.reduce((sum, service) => sum + service.price, 0);
+    totalRevenue += bookingTotal;
+    revenueByBarber.set(booking.barberId, (revenueByBarber.get(booking.barberId) ?? 0) + bookingTotal);
+  }
 
   const items: AdminBarberItem[] = barbers.map((barber) => ({
     id: barber.id,
@@ -29,6 +41,7 @@ export default async function AdminPage() {
     slug: barber.slug,
     active: barber.active,
     bookingsCount: barber._count.bookings,
+    revenue: revenueByBarber.get(barber.id) ?? 0,
     createdAtDisplay: formatDateDisplay(barber.createdAt.toISOString().slice(0, 10)),
   }));
 
@@ -36,6 +49,7 @@ export default async function AdminPage() {
     { label: "Ümumi bərbərlər", value: totalBarbers, icon: Users },
     { label: "Aktiv bərbərlər", value: activeBarbers, icon: CircleCheckBig },
     { label: "Ümumi rezervasiyalar", value: totalBookings, icon: CalendarCheck },
+    { label: "Ümumi qazanc", value: `${totalRevenue} AZN`, icon: Wallet },
   ];
 
   return (
@@ -45,16 +59,16 @@ export default async function AdminPage() {
         <p className="text-sm text-muted-foreground">Platformadakı bütün bərbər hesablarını idarə edin.</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {stats.map((stat) => (
           <Card key={stat.label} size="sm">
-            <CardContent className="flex items-center gap-4">
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
-                <stat.icon className="size-5" />
+            <CardContent className="flex flex-col gap-2">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary sm:size-11">
+                <stat.icon className="size-4 sm:size-5" />
               </div>
               <div>
-                <p className="text-2xl font-semibold">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                <p className="text-xl font-semibold sm:text-2xl">{stat.value}</p>
+                <p className="text-xs text-muted-foreground sm:text-sm">{stat.label}</p>
               </div>
             </CardContent>
           </Card>
