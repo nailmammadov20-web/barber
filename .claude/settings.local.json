@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --yes create-next-app@latest barberhub-tmp --typescript --tailwind --eslint --app --src-dir=false --import-alias \"@/*\" --use-npm --yes)",
+      "Bash(npx --yes shadcn@latest init -d --base-color neutral)",
+      "Bash(npx --yes shadcn@latest init -d)",
+      "Bash(npx --yes shadcn@latest add button card select badge input label form calendar popover sonner)",
+      "Bash(npx --yes shadcn@latest add form)",
+      "Bash(npm install *)",
+      "Bash(npx --yes shadcn@latest add form --overwrite -v)",
+      "Bash(npx --yes shadcn@latest add form --overwrite)",
+      "WebFetch(domain:pris.ly)",
+      "WebFetch(domain:www.prisma.io)",
+      "Bash(powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\\\"Name='node.exe'\\\\\" | Select-Object ProcessId, CommandLine | Format-List\")"
+    ]
+  }
+}

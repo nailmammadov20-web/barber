@@ -1,0 +1,102 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { AlarmClockOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { setBookingStatus } from "@/app/dashboard/bookings/actions";
+
+export type OverdueBooking = {
+  id: string;
+  customerName: string;
+  timeSlot: string;
+  serviceNames: string[];
+};
+
+function isPast(timeSlot: string): boolean {
+  const [hours, minutes] = timeSlot.split(":").map(Number);
+  const now = new Date();
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  return hours * 60 + minutes < nowMinutes;
+}
+
+export function OverdueBookingsPrompt({ bookings }: { bookings: OverdueBooking[] }) {
+  const router = useRouter();
+  const [dismissed, setDismissed] = useState(false);
+  const [isSubmitting, startTransition] = useTransition();
+
+  const overdue = bookings.filter((booking) => isPast(booking.timeSlot));
+
+  if (overdue.length === 0) return null;
+
+  function resolve(booking: OverdueBooking, status: "COMPLETED" | "NO_SHOW") {
+    startTransition(async () => {
+      const result = await setBookingStatus(booking.id, status);
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(
+        status === "COMPLETED"
+          ? `${booking.customerName} tamamlandı olaraq qeyd edildi.`
+          : `${booking.customerName} gəlmədi olaraq qeyd edildi.`
+      );
+      router.refresh();
+    });
+  }
+
+  return (
+    <Dialog open={!dismissed} onOpenChange={(next) => setDismissed(!next)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <AlarmClockOff className="size-4 text-primary" />
+            Vaxtı keçmiş rezervasiyalar
+          </DialogTitle>
+          <DialogDescription>
+            Bu rezervasiyaların saatı artıq keçib, amma hələ nəticə qeyd olunmayıb. Zəhmət olmasa
+            müştəri haqqında münasibətinizi bildirin.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-2.5">
+          {overdue.map((booking) => (
+            <div
+              key={booking.id}
+              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2.5"
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-medium">
+                  {booking.timeSlot} — {booking.customerName}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {booking.serviceNames.join(", ")}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" disabled={isSubmitting} onClick={() => resolve(booking, "COMPLETED")}>
+                  Tamamlandı
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={isSubmitting}
+                  onClick={() => resolve(booking, "NO_SHOW")}
+                >
+                  Gəlmədi
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

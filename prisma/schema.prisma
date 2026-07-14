@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  BARBER
+  SUPER_ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum SocialPlatform {
+  INSTAGRAM
+  TIKTOK
+  YOUTUBE
+  FACEBOOK
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  passwordHash  String
+  role          Role           @default(BARBER)
+  createdAt     DateTime       @default(now())
+  barberProfile BarberProfile?
+  sessions      Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model BarberProfile {
+  id           String        @id @default(cuid())
+  userId       String        @unique
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug         String        @unique
+  fullName     String
+  phone        String
+  city         String
+  address      String?
+  bio          String?
+  photoUrl     String?
+  instagramUrl String?
+  tiktokUrl    String?
+  youtubeUrl   String?
+  facebookUrl  String?
+  liveOn       SocialPlatform?
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  services     Service[]
+  workingHours WorkingHour[]
+  bookings     Booking[]
+}
+
+model Service {
+  id              String           @id @default(cuid())
+  barberId        String
+  barber          BarberProfile    @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  name            String
+  durationMinutes Int
+  price           Int
+  active          Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  bookingServices BookingService[]
+}
+
+model WorkingHour {
+  id        String        @id @default(cuid())
+  barberId  String
+  barber    BarberProfile @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  weekday   Int
+  startTime String
+  endTime   String
+  isOff     Boolean       @default(false)
+
+  @@unique([barberId, weekday])
+}
+
+model Booking {
+  id              String            @id @default(cuid())
+  barberId        String
+  barber          BarberProfile     @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  services        BookingService[]
+  customerName    String
+  customerPhone   String
+  date            DateTime
+  timeSlot        String
+  durationMinutes Int               @default(30)
+  status          BookingStatus     @default(PENDING)
+  createdAt       DateTime          @default(now())
+
+  @@unique([barberId, date, timeSlot])
+}
+
+model BookingService {
+  id              String   @id @default(cuid())
+  bookingId       String
+  booking         Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  serviceId       String
+  service         Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  name            String
+  price           Int
+  durationMinutes Int
+
+  @@unique([bookingId, serviceId])
+}
