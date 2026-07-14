@@ -112,6 +112,7 @@ export default async function BarberPublicPage({
                   photoUrl={barber.photoUrl}
                   city={barber.city}
                   path={`/barber/${slug}`}
+                  bio={barber.bio}
                 />
               </div>
             </div>

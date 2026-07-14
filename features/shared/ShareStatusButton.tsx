@@ -34,7 +34,42 @@ function roundRect(
   ctx.closePath();
 }
 
-async function generateStatusImage(fullName: string, photoUrl: string | null, city: string, url: string): Promise<Blob> {
+const MAX_BIO_LINES = 4;
+
+function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, maxLines: number): string[] {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let current = "";
+
+  for (const word of words) {
+    const test = current ? `${current} ${word}` : word;
+    if (ctx.measureText(test).width > maxWidth && current) {
+      lines.push(current);
+      current = word;
+      if (lines.length === maxLines) break;
+    } else {
+      current = test;
+    }
+  }
+  if (lines.length < maxLines && current) lines.push(current);
+
+  if (lines.length === maxLines) {
+    const wordCount = lines.join(" ").split(/\s+/).length;
+    if (wordCount < words.length) {
+      lines[lines.length - 1] = `${lines[lines.length - 1]}…`;
+    }
+  }
+
+  return lines;
+}
+
+async function generateStatusImage(
+  fullName: string,
+  photoUrl: string | null,
+  city: string,
+  url: string,
+  bio: string | null
+): Promise<Blob> {
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
@@ -105,18 +140,38 @@ async function generateStatusImage(fullName: string, photoUrl: string | null, ci
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.fillText(city, WIDTH / 2, 1050);
 
+  const trimmedBio = bio?.trim() || "";
+  const bioFont = "italic 500 40px system-ui, sans-serif";
+  const bioLineHeight = 52;
+  const boxWidth = WIDTH - 180;
+  const boxPadding = 60;
+
+  ctx.font = bioFont;
+  const bodyLines = trimmedBio
+    ? wrapText(ctx, trimmedBio, boxWidth - boxPadding * 2, MAX_BIO_LINES)
+    : [url.replace(/^https?:\/\//, "")];
+
   const ctaY = 1300;
+  const titleHeight = 100;
+  const boxHeight = titleHeight + bodyLines.length * bioLineHeight + 50;
   ctx.fillStyle = "rgba(255,255,255,0.14)";
-  roundRect(ctx, 90, ctaY, WIDTH - 180, 220, 32);
+  roundRect(ctx, 90, ctaY, boxWidth, boxHeight, 32);
   ctx.fill();
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "700 56px system-ui, sans-serif";
-  ctx.fillText("Rezervasiya et", WIDTH / 2, ctaY + 90);
+  ctx.fillText("Rezervasiya et", WIDTH / 2, ctaY + 76);
 
-  ctx.font = "500 42px system-ui, sans-serif";
   ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.fillText(url.replace(/^https?:\/\//, ""), WIDTH / 2, ctaY + 160);
+  if (trimmedBio) {
+    ctx.font = bioFont;
+    bodyLines.forEach((line, index) => {
+      ctx.fillText(line, WIDTH / 2, ctaY + titleHeight + index * bioLineHeight + 34);
+    });
+  } else {
+    ctx.font = "500 42px system-ui, sans-serif";
+    ctx.fillText(bodyLines[0], WIDTH / 2, ctaY + titleHeight + 34);
+  }
 
   ctx.font = "500 36px system-ui, sans-serif";
   ctx.fillStyle = "rgba(255,255,255,0.7)";
@@ -135,12 +190,14 @@ export function ShareStatusButton({
   photoUrl,
   city,
   path,
+  bio,
   label = "Statusda paylaş",
 }: {
   fullName: string;
   photoUrl: string | null;
   city: string;
   path: string;
+  bio?: string | null;
   label?: string;
 }) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -149,7 +206,7 @@ export function ShareStatusButton({
     setIsGenerating(true);
     try {
       const url = `${window.location.origin}${path}`;
-      const blob = await generateStatusImage(fullName, photoUrl, city, url);
+      const blob = await generateStatusImage(fullName, photoUrl, city, url, bio ?? null);
       const file = new File([blob], "rezervasiya.png", { type: "image/png" });
       const shareText = `${fullName} — rezervasiya edin: ${url}`;
 

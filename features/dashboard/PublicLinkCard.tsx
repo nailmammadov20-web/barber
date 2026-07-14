@@ -13,11 +13,13 @@ export function PublicLinkCard({
   fullName,
   photoUrl,
   city,
+  bio,
 }: {
   slug: string;
   fullName: string;
   photoUrl: string | null;
   city: string;
+  bio: string | null;
 }) {
   const [isCopying, startTransition] = useTransition();
   const path = `/barber/${slug}`;
@@ -46,7 +48,7 @@ export function PublicLinkCard({
             <Copy className="size-4" />
             Linki kopyala
           </Button>
-          <ShareStatusButton fullName={fullName} photoUrl={photoUrl} city={city} path={path} />
+          <ShareStatusButton fullName={fullName} photoUrl={photoUrl} city={city} path={path} bio={bio} />
           <Button
             size="sm"
             nativeButton={false}

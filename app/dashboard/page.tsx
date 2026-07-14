@@ -76,6 +76,7 @@ export default async function DashboardOverviewPage() {
         fullName={session.barber.fullName}
         photoUrl={session.barber.photoUrl}
         city={session.barber.city}
+        bio={session.barber.bio}
       />
 
       <SetupChecklist hasServices={servicesCount > 0} hasWorkingHours={workingHoursCount > 0} />
