@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentBarber } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
-import { ServiceForm } from "@/features/dashboard/ServiceForm";
+import { AddServiceDialog } from "@/features/dashboard/AddServiceDialog";
 import { ServiceList } from "@/features/dashboard/ServiceList";
 
 export default async function DashboardServicesPage() {
@@ -15,14 +15,16 @@ export default async function DashboardServicesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Xidmətlər</h1>
-        <p className="text-sm text-muted-foreground">
-          Müştərilərin ictimai səhifənizdə görəcəyi xidmətləri idarə edin.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">Xidmətlər</h1>
+          <p className="text-sm text-muted-foreground">
+            Müştərilərin ictimai səhifənizdə görəcəyi xidmətləri idarə edin.
+          </p>
+        </div>
+        <AddServiceDialog />
       </div>
 
-      <ServiceForm />
       <ServiceList services={services} />
     </div>
   );

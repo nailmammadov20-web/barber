@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { saveWorkingHours } from "@/app/dashboard/hours/actions";
 import type { WorkingHourEntry } from "@/lib/validation/workingHours";
 
@@ -38,38 +39,44 @@ export function WorkingHoursForm({ initialHours }: { initialHours: WorkingHourEn
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {hours.map((entry) => (
-        <div key={entry.weekday} className="flex flex-wrap items-center gap-3 rounded-lg border p-3">
-          <span className="w-36 text-sm font-medium">{WEEKDAY_LABELS[entry.weekday]}</span>
-          <label className="flex items-center gap-2 text-sm text-muted-foreground">
-            <input
-              type="checkbox"
-              checked={entry.isOff}
-              onChange={(event) => updateEntry(entry.weekday, { isOff: event.target.checked })}
-            />
-            Bağlı
-          </label>
+        <div key={entry.weekday} className="flex flex-col gap-3 rounded-xl border p-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm font-medium">{WEEKDAY_LABELS[entry.weekday]}</span>
+            <button
+              type="button"
+              onClick={() => updateEntry(entry.weekday, { isOff: !entry.isOff })}
+              className={cn(
+                "shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                entry.isOff
+                  ? "bg-muted text-muted-foreground"
+                  : "bg-primary/15 text-primary"
+              )}
+            >
+              {entry.isOff ? "Bağlı" : "Açıq"}
+            </button>
+          </div>
           {!entry.isOff && (
-            <>
+            <div className="flex items-center gap-2">
               <Input
                 type="time"
                 value={entry.startTime}
                 onChange={(event) => updateEntry(entry.weekday, { startTime: event.target.value })}
-                className="w-32"
+                className="h-10 flex-1 rounded-lg"
               />
-              <span className="text-sm text-muted-foreground">—</span>
+              <span className="shrink-0 text-sm text-muted-foreground">—</span>
               <Input
                 type="time"
                 value={entry.endTime}
                 onChange={(event) => updateEntry(entry.weekday, { endTime: event.target.value })}
-                className="w-32"
+                className="h-10 flex-1 rounded-lg"
               />
-            </>
+            </div>
           )}
         </div>
       ))}
-      <Button onClick={handleSave} disabled={isSubmitting} className="w-fit">
+      <Button onClick={handleSave} disabled={isSubmitting} className="mt-2 h-11 w-full rounded-lg sm:w-fit">
         {isSubmitting ? "Yadda saxlanılır..." : "Yadda saxla"}
       </Button>
     </div>

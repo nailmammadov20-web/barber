@@ -16,18 +16,22 @@ import {
 
 export function ConfirmActionButton({
   label,
+  ariaLabel,
   title,
   description,
   confirmLabel,
   variant,
+  size = "sm",
   disabled,
   onConfirm,
 }: {
   label: React.ReactNode;
+  ariaLabel?: string;
   title: string;
   description: string;
   confirmLabel: string;
   variant?: "default" | "outline" | "destructive";
+  size?: "sm" | "icon-sm";
   disabled?: boolean;
   onConfirm: () => void;
 }) {
@@ -37,7 +41,7 @@ export function ConfirmActionButton({
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger
         render={
-          <Button size="sm" variant={variant} disabled={disabled}>
+          <Button size={size} variant={variant} disabled={disabled} aria-label={ariaLabel}>
             {label}
           </Button>
         }

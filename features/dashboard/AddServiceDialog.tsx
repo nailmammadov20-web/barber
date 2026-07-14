@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Pencil } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,30 +25,28 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { serviceSchema, type ServiceInput } from "@/lib/validation/service";
-import { updateService } from "@/app/dashboard/services/actions";
-import type { ServiceItem } from "@/features/dashboard/ServiceList";
+import { createService } from "@/app/dashboard/services/actions";
 
-export function EditServiceDialog({ service }: { service: ServiceItem }) {
+const DEFAULT_VALUES: ServiceInput = { name: "", durationMinutes: 30, price: 0 };
+
+export function AddServiceDialog() {
   const [open, setOpen] = useState(false);
   const [isSubmitting, startTransition] = useTransition();
 
   const form = useForm<ServiceInput>({
     resolver: zodResolver(serviceSchema),
-    defaultValues: {
-      name: service.name,
-      durationMinutes: service.durationMinutes,
-      price: service.price,
-    },
+    defaultValues: DEFAULT_VALUES,
   });
 
   function onSubmit(values: ServiceInput) {
     startTransition(async () => {
-      const result = await updateService(service.id, values);
+      const result = await createService(values);
       if (!result.success) {
         toast.error(result.error);
         return;
       }
-      toast.success("Xidmət yeniləndi.");
+      toast.success("Xidmət əlavə edildi.");
+      form.reset(DEFAULT_VALUES);
       setOpen(false);
     });
   }
@@ -58,19 +56,20 @@ export function EditServiceDialog({ service }: { service: ServiceItem }) {
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (next) form.reset({ name: service.name, durationMinutes: service.durationMinutes, price: service.price });
+        if (next) form.reset(DEFAULT_VALUES);
       }}
     >
       <DialogTrigger
         render={
-          <Button size="icon-sm" variant="outline" aria-label="Redaktə et">
-            <Pencil className="size-4" />
+          <Button className="w-full rounded-lg sm:w-fit">
+            <Plus className="size-4" />
+            Yeni xidmət
           </Button>
         }
       />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Xidməti redaktə et</DialogTitle>
+          <DialogTitle>Yeni xidmət əlavə et</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -81,7 +80,7 @@ export function EditServiceDialog({ service }: { service: ServiceItem }) {
                 <FormItem>
                   <FormLabel>Xidmət adı</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input placeholder="Saç kəsimi" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -125,7 +124,7 @@ export function EditServiceDialog({ service }: { service: ServiceItem }) {
             </div>
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Yadda saxlanılır..." : "Yadda saxla"}
+                {isSubmitting ? "Əlavə edilir..." : "Əlavə et"}
               </Button>
             </DialogFooter>
           </form>

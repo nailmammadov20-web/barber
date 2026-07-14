@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { toast } from "sonner";
+import { Eye, EyeOff, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,24 +45,34 @@ export function ServiceList({ services }: { services: ServiceItem[] }) {
     <div className="flex flex-col gap-3">
       {services.map((service) => (
         <Card key={service.id}>
-          <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
-            <div>
-              <p className="font-medium">{service.name}</p>
+          <CardContent className="flex items-center justify-between gap-3 py-4">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="truncate font-medium">{service.name}</p>
+                <Badge variant={service.active ? "default" : "outline"}>
+                  {service.active ? "Aktiv" : "Deaktiv"}
+                </Badge>
+              </div>
               <p className="text-sm text-muted-foreground">
                 {service.durationMinutes} dəq · {service.price} AZN
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant={service.active ? "default" : "outline"}>
-                {service.active ? "Aktiv" : "Deaktiv"}
-              </Badge>
+            <div className="flex shrink-0 items-center gap-1.5">
               <EditServiceDialog service={service} />
-              <Button size="sm" variant="outline" disabled={isPending} onClick={() => handleToggle(service.id)}>
-                {service.active ? "Deaktiv et" : "Aktiv et"}
+              <Button
+                size="icon-sm"
+                variant="outline"
+                disabled={isPending}
+                onClick={() => handleToggle(service.id)}
+                aria-label={service.active ? "Deaktiv et" : "Aktiv et"}
+              >
+                {service.active ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </Button>
               <ConfirmActionButton
-                label="Sil"
+                label={<Trash2 className="size-4" />}
+                ariaLabel="Sil"
                 variant="destructive"
+                size="icon-sm"
                 disabled={isPending}
                 title="Xidməti silirsiniz?"
                 description={`"${service.name}" xidməti həmişəlik silinəcək. Əgər bu xidmətlə bağlı rezervasiya mövcuddursa, silinə bilməyəcək — bu halda əvəzinə deaktiv edin.`}

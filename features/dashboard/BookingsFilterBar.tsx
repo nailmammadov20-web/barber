@@ -2,10 +2,19 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { formatDateDisplay, formatDateInput } from "@/lib/formatDate";
 
 const STATUS_OPTIONS: { value: string; label: string }[] = [
   { value: "all", label: "Hamısı" },
@@ -34,6 +43,7 @@ export function BookingsFilterBar({ date, status }: { date: string; status: stri
   const router = useRouter();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("q") ?? "");
+  const [dateOpen, setDateOpen] = useState(false);
 
   function updateParams(patch: Record<string, string>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -109,12 +119,15 @@ export function BookingsFilterBar({ date, status }: { date: string; status: stri
           >
             <ChevronLeft className="size-4" />
           </Button>
-          <Input
-            type="date"
-            value={date}
-            onChange={(event) => updateParams({ date: event.target.value })}
-            className="h-10 w-44"
-          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setDateOpen(true)}
+            className="h-10 flex-1 justify-start gap-2 rounded-lg font-normal sm:flex-none"
+          >
+            <CalendarDays className="size-4 text-muted-foreground" />
+            {formatDateDisplay(date)}
+          </Button>
           <Button
             type="button"
             variant="outline"
@@ -129,6 +142,49 @@ export function BookingsFilterBar({ date, status }: { date: string; status: stri
           </Button>
         </div>
       )}
+
+      {/*
+        Modal Dialog (bottom sheet on mobile, centered card on sm+) instead of a native
+        <input type="date"> — matches the picker used on the public booking page and
+        avoids inconsistent, hard-to-style native date UI across mobile browsers.
+      */}
+      <Dialog open={dateOpen} onOpenChange={setDateOpen}>
+        <DialogHeader className="sr-only">
+          <DialogTitle>Tarix seçin</DialogTitle>
+          <DialogDescription>Baxmaq istədiyiniz tarixi seçin.</DialogDescription>
+        </DialogHeader>
+        <DialogContent
+          showCloseButton={false}
+          className="inset-x-0 bottom-0 top-auto left-0 w-full max-w-full translate-x-0 translate-y-0 gap-0 rounded-t-2xl rounded-b-none p-0 sm:inset-auto sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:w-auto sm:max-w-none sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl"
+        >
+          <div className="flex items-center justify-between border-b px-4 py-3">
+            <p className="text-sm font-medium">Tarix seçin</p>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setDateOpen(false)}
+              aria-label="Bağla"
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
+          <div
+            className="flex justify-center px-2 pt-2"
+            style={{ paddingBottom: "calc(0.5rem + env(safe-area-inset-bottom))" }}
+          >
+            <Calendar
+              mode="single"
+              selected={new Date(`${date}T00:00:00`)}
+              onSelect={(day) => {
+                if (!day) return;
+                updateParams({ date: formatDateInput(day) });
+                setDateOpen(false);
+              }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
