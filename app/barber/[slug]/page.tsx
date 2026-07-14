@@ -3,7 +3,6 @@ import { MapPin, Phone } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PublicBookingForm } from "@/features/public/PublicBookingForm";
-import { ServicesListCard } from "@/features/public/ServicesListCard";
 import { LocationCard } from "@/features/public/LocationCard";
 import { SocialLinks } from "@/features/public/SocialLinks";
 import { ProfileViewBadge } from "@/features/public/ProfileViewBadge";
@@ -106,19 +105,6 @@ export default async function BarberPublicPage({
                 <p className="mt-3 max-w-sm text-sm text-muted-foreground">{barber.bio}</p>
               )}
             </div>
-
-            {barber.services.length > 0 && (
-              <div className="mt-6">
-                <ServicesListCard
-                  services={barber.services.map((service) => ({
-                    id: service.id,
-                    name: service.name,
-                    durationMinutes: service.durationMinutes,
-                    price: service.price,
-                  }))}
-                />
-              </div>
-            )}
           </div>
 
           {/* Booking column */}

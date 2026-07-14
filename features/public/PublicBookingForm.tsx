@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/form";
 import { bookingSchema, type BookingInput, customerStorageSchema } from "@/lib/validation/booking";
 import { createBooking, fetchAvailableSlots } from "@/app/barber/[slug]/actions";
-import { MultiServiceSelect, type PublicService } from "@/features/public/MultiServiceSelect";
+import { ServiceSelectionList, type PublicService } from "@/features/public/ServiceSelectionList";
 import { SlotPicker } from "@/features/public/SlotPicker";
 
 const CUSTOMER_STORAGE_KEY = "barberhub_customer";
@@ -164,7 +164,7 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
             <FormItem>
               <FormLabel>Xidmətlər</FormLabel>
               <FormControl>
-                <MultiServiceSelect services={services} value={field.value} onChange={field.onChange} />
+                <ServiceSelectionList services={services} value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
