@@ -6,7 +6,7 @@ import { getCurrentBarber } from "@/lib/auth/session";
 import { profileSchema, type ProfileInput } from "@/lib/validation/profile";
 
 type ActionResult = { success: true } | { success: false; error: string };
-type PhotoResult = { success: true; photoUrl: string } | { success: false; error: string };
+type UploadResult = { success: true; url: string } | { success: false; error: string };
 
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 const ALLOWED_PHOTO_TYPES = new Set(["image/jpeg", "image/png"]);
@@ -44,32 +44,38 @@ export async function updateProfile(input: ProfileInput): Promise<ActionResult> 
   return { success: true };
 }
 
-export async function uploadProfilePhoto(formData: FormData): Promise<PhotoResult> {
-  const session = await getCurrentBarber();
-  if (!session) return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
-
-  const file = formData.get("photo");
-  if (!(file instanceof File) || file.size === 0) {
+/**
+ * Validates an uploaded image and converts it to a data URI. Images are stored
+ * inline in the database (not on disk) so they survive on serverless hosts like
+ * Vercel, where the filesystem is read-only at runtime.
+ */
+async function fileToDataUri(entry: FormDataEntryValue | null): Promise<UploadResult> {
+  if (!(entry instanceof File) || entry.size === 0) {
     return { success: false, error: "Şəkil seçilməyib." };
   }
-
-  if (!ALLOWED_PHOTO_TYPES.has(file.type)) {
+  if (!ALLOWED_PHOTO_TYPES.has(entry.type)) {
     return { success: false, error: "Yalnız JPEG və ya PNG formatı qəbul olunur." };
   }
-  if (file.size > MAX_PHOTO_BYTES) {
+  if (entry.size > MAX_PHOTO_BYTES) {
     return { success: false, error: "Şəkil 2MB-dan böyük ola bilməz." };
   }
 
-  // Stored inline as a data URI (not on disk) so it survives on serverless hosts
-  // like Vercel, where the filesystem is read-only at runtime.
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const photoUrl = `data:${file.type};base64,${buffer.toString("base64")}`;
+  const buffer = Buffer.from(await entry.arrayBuffer());
+  return { success: true, url: `data:${entry.type};base64,${buffer.toString("base64")}` };
+}
 
-  await prisma.barberProfile.update({ where: { id: session.barber.id }, data: { photoUrl } });
+export async function uploadProfilePhoto(formData: FormData): Promise<UploadResult> {
+  const session = await getCurrentBarber();
+  if (!session) return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
+
+  const result = await fileToDataUri(formData.get("photo"));
+  if (!result.success) return result;
+
+  await prisma.barberProfile.update({ where: { id: session.barber.id }, data: { photoUrl: result.url } });
 
   revalidatePath("/dashboard/settings");
   revalidatePath(`/barber/${session.barber.slug}`);
-  return { success: true, photoUrl };
+  return result;
 }
 
 export async function removeProfilePhoto(): Promise<ActionResult> {
@@ -77,6 +83,31 @@ export async function removeProfilePhoto(): Promise<ActionResult> {
   if (!session) return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
 
   await prisma.barberProfile.update({ where: { id: session.barber.id }, data: { photoUrl: null } });
+
+  revalidatePath("/dashboard/settings");
+  revalidatePath(`/barber/${session.barber.slug}`);
+  return { success: true };
+}
+
+export async function uploadCoverPhoto(formData: FormData): Promise<UploadResult> {
+  const session = await getCurrentBarber();
+  if (!session) return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
+
+  const result = await fileToDataUri(formData.get("cover"));
+  if (!result.success) return result;
+
+  await prisma.barberProfile.update({ where: { id: session.barber.id }, data: { coverUrl: result.url } });
+
+  revalidatePath("/dashboard/settings");
+  revalidatePath(`/barber/${session.barber.slug}`);
+  return result;
+}
+
+export async function removeCoverPhoto(): Promise<ActionResult> {
+  const session = await getCurrentBarber();
+  if (!session) return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
+
+  await prisma.barberProfile.update({ where: { id: session.barber.id }, data: { coverUrl: null } });
 
   revalidatePath("/dashboard/settings");
   revalidatePath(`/barber/${session.barber.slug}`);

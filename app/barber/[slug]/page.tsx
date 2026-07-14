@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import { MapPin, Phone } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,13 +27,11 @@ export default async function BarberPublicPage({
   return (
     <main className="min-h-screen pb-16">
       <div className="relative z-0 h-44 w-full overflow-hidden sm:h-64 lg:h-72">
-        <Image
-          src="/images/tools-flatlay.jpg"
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={barber.coverUrl ?? "/images/tools-flatlay.jpg"}
           alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
+          className="size-full object-cover"
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
