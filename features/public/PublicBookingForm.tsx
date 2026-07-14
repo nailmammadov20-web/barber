@@ -4,12 +4,18 @@ import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { CalendarCheck, CalendarDays, Clock, Loader2, Phone, User } from "lucide-react";
+import { CalendarCheck, CalendarDays, Clock, Loader2, Phone, User, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -76,6 +82,7 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
   const [slots, setSlots] = useState<string[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [isSubmitting, startTransition] = useTransition();
+  const [dateOpen, setDateOpen] = useState(false);
 
   const serviceIds = form.watch("serviceIds");
   const date = form.watch("date");
@@ -173,29 +180,61 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
                 <CalendarDays className="size-3.5 text-muted-foreground" />
                 Tarix
               </FormLabel>
-              <Popover>
-                <PopoverTrigger
-                  render={
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        className="h-12 w-full justify-start rounded-xl px-3.5 text-base font-normal"
-                      >
-                        <CalendarDays className="size-4 text-muted-foreground" />
-                        {field.value ? formatDateDisplay(field.value) : "Tarix seçin"}
-                      </Button>
-                    </FormControl>
-                  }
-                />
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value ? new Date(`${field.value}T00:00:00`) : undefined}
-                    onSelect={(day) => day && field.onChange(formatDateInput(day))}
-                    disabled={{ before: today, after: maxDate }}
-                  />
-                </PopoverContent>
-              </Popover>
+              <FormControl>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setDateOpen(true)}
+                  className="h-12 w-full justify-start rounded-xl px-3.5 text-base font-normal"
+                >
+                  <CalendarDays className="size-4 text-muted-foreground" />
+                  {field.value ? formatDateDisplay(field.value) : "Tarix seçin"}
+                </Button>
+              </FormControl>
+
+              {/*
+                Modal Dialog (bottom sheet on mobile, centered card on sm+) instead of an
+                anchored Popover — see MultiServiceSelect for why: an anchored popup
+                combined with the mobile keyboard/viewport caused the page to jump.
+              */}
+              <Dialog open={dateOpen} onOpenChange={setDateOpen}>
+                <DialogHeader className="sr-only">
+                  <DialogTitle>Tarix seçin</DialogTitle>
+                  <DialogDescription>Rezervasiya üçün tarix seçin.</DialogDescription>
+                </DialogHeader>
+                <DialogContent
+                  showCloseButton={false}
+                  className="inset-x-0 bottom-0 top-auto left-0 w-full max-w-full translate-x-0 translate-y-0 gap-0 rounded-t-2xl rounded-b-none p-0 sm:inset-auto sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:w-auto sm:max-w-none sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl"
+                >
+                  <div className="flex items-center justify-between border-b px-4 py-3">
+                    <p className="text-sm font-medium">Tarix seçin</p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => setDateOpen(false)}
+                      aria-label="Bağla"
+                    >
+                      <X className="size-4" />
+                    </Button>
+                  </div>
+                  <div
+                    className="flex justify-center px-2 pt-2"
+                    style={{ paddingBottom: "calc(0.5rem + env(safe-area-inset-bottom))" }}
+                  >
+                    <Calendar
+                      mode="single"
+                      selected={field.value ? new Date(`${field.value}T00:00:00`) : undefined}
+                      onSelect={(day) => {
+                        if (!day) return;
+                        field.onChange(formatDateInput(day));
+                        setDateOpen(false);
+                      }}
+                      disabled={{ before: today, after: maxDate }}
+                    />
+                  </div>
+                </DialogContent>
+              </Dialog>
               <FormMessage />
             </FormItem>
           )}
