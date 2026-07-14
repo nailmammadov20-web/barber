@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { removeProfilePhoto, uploadProfilePhoto } from "@/app/dashboard/settings/actions";
 
-const MAX_BYTES = 4 * 1024 * 1024;
+const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/png"];
 
 export function AvatarUpload({ photoUrl, fullName }: { photoUrl: string | null; fullName: string }) {
@@ -23,7 +23,7 @@ export function AvatarUpload({ photoUrl, fullName }: { photoUrl: string | null; 
       return;
     }
     if (file.size > MAX_BYTES) {
-      toast.error("Şəkil 4MB-dan böyük ola bilməz.");
+      toast.error("Şəkil 2MB-dan böyük ola bilməz.");
       return;
     }
 
@@ -123,7 +123,7 @@ export function AvatarUpload({ photoUrl, fullName }: { photoUrl: string | null; 
             </Button>
           )}
         </div>
-        <p className="text-xs text-muted-foreground">JPEG və ya PNG, maksimum 4MB.</p>
+        <p className="text-xs text-muted-foreground">JPEG və ya PNG, maksimum 2MB.</p>
       </div>
     </div>
   );

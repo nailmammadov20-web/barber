@@ -1,7 +1,5 @@
 "use server";
 
-import { mkdir, unlink, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentBarber } from "@/lib/auth/session";
@@ -10,20 +8,8 @@ import { profileSchema, type ProfileInput } from "@/lib/validation/profile";
 type ActionResult = { success: true } | { success: false; error: string };
 type PhotoResult = { success: true; photoUrl: string } | { success: false; error: string };
 
-const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
-const ALLOWED_PHOTO_TYPES: Record<string, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-};
-
-async function deleteLocalPhoto(photoUrl: string | null) {
-  if (!photoUrl || !photoUrl.startsWith("/uploads/avatars/")) return;
-  try {
-    await unlink(path.join(process.cwd(), "public", photoUrl));
-  } catch {
-    // best-effort cleanup; fine if the file was already removed
-  }
-}
+const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
+const ALLOWED_PHOTO_TYPES = new Set(["image/jpeg", "image/png"]);
 
 export async function updateProfile(input: ProfileInput): Promise<ActionResult> {
   const session = await getCurrentBarber();
@@ -67,29 +53,22 @@ export async function uploadProfilePhoto(formData: FormData): Promise<PhotoResul
     return { success: false, error: "Şəkil seçilməyib." };
   }
 
-  const extension = ALLOWED_PHOTO_TYPES[file.type];
-  if (!extension) {
+  if (!ALLOWED_PHOTO_TYPES.has(file.type)) {
     return { success: false, error: "Yalnız JPEG və ya PNG formatı qəbul olunur." };
   }
   if (file.size > MAX_PHOTO_BYTES) {
-    return { success: false, error: "Şəkil 4MB-dan böyük ola bilməz." };
+    return { success: false, error: "Şəkil 2MB-dan böyük ola bilməz." };
   }
 
-  const barber = await prisma.barberProfile.findUnique({ where: { id: session.barber.id } });
-  if (!barber) return { success: false, error: "Profil tapılmadı." };
-
+  // Stored inline as a data URI (not on disk) so it survives on serverless hosts
+  // like Vercel, where the filesystem is read-only at runtime.
   const buffer = Buffer.from(await file.arrayBuffer());
-  const filename = `${barber.id}-${Date.now()}.${extension}`;
-  const uploadDir = path.join(process.cwd(), "public", "uploads", "avatars");
-  await mkdir(uploadDir, { recursive: true });
-  await writeFile(path.join(uploadDir, filename), buffer);
+  const photoUrl = `data:${file.type};base64,${buffer.toString("base64")}`;
 
-  const photoUrl = `/uploads/avatars/${filename}`;
-  await deleteLocalPhoto(barber.photoUrl);
-  await prisma.barberProfile.update({ where: { id: barber.id }, data: { photoUrl } });
+  await prisma.barberProfile.update({ where: { id: session.barber.id }, data: { photoUrl } });
 
   revalidatePath("/dashboard/settings");
-  revalidatePath(`/barber/${barber.slug}`);
+  revalidatePath(`/barber/${session.barber.slug}`);
   return { success: true, photoUrl };
 }
 
@@ -97,13 +76,9 @@ export async function removeProfilePhoto(): Promise<ActionResult> {
   const session = await getCurrentBarber();
   if (!session) return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
 
-  const barber = await prisma.barberProfile.findUnique({ where: { id: session.barber.id } });
-  if (!barber) return { success: false, error: "Profil tapılmadı." };
-
-  await deleteLocalPhoto(barber.photoUrl);
-  await prisma.barberProfile.update({ where: { id: barber.id }, data: { photoUrl: null } });
+  await prisma.barberProfile.update({ where: { id: session.barber.id }, data: { photoUrl: null } });
 
   revalidatePath("/dashboard/settings");
-  revalidatePath(`/barber/${barber.slug}`);
+  revalidatePath(`/barber/${session.barber.slug}`);
   return { success: true };
 }
