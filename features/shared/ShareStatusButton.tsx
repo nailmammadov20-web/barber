@@ -135,11 +135,13 @@ export function ShareStatusButton({
   photoUrl,
   city,
   path,
+  label = "Statusda paylaş",
 }: {
   fullName: string;
   photoUrl: string | null;
   city: string;
   path: string;
+  label?: string;
 }) {
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -174,7 +176,7 @@ export function ShareStatusButton({
   return (
     <Button type="button" variant="outline" size="sm" onClick={handleShare} disabled={isGenerating}>
       {isGenerating ? <Loader2 className="size-4 animate-spin" /> : <Share2 className="size-4" />}
-      Statusda paylaş
+      {label}
     </Button>
   );
 }

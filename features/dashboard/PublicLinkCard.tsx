@@ -6,7 +6,7 @@ import { Copy, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ShareStatusButton } from "@/features/dashboard/ShareStatusButton";
+import { ShareStatusButton } from "@/features/shared/ShareStatusButton";
 
 export function PublicLinkCard({
   slug,

@@ -8,6 +8,7 @@ import { SocialLinks } from "@/features/public/SocialLinks";
 import { ProfileViewBadge } from "@/features/public/ProfileViewBadge";
 import { MobileBookingCta } from "@/features/public/MobileBookingCta";
 import { ScrollToMapButton } from "@/features/public/ScrollToMapButton";
+import { ShareStatusButton } from "@/features/shared/ShareStatusButton";
 import { SOCIAL_GRADIENTS } from "@/lib/social";
 import { getViewStats } from "@/lib/profileViews";
 
@@ -104,6 +105,15 @@ export default async function BarberPublicPage({
               {barber.bio && (
                 <p className="mt-3 max-w-sm text-sm text-muted-foreground">{barber.bio}</p>
               )}
+
+              <div className="mt-3">
+                <ShareStatusButton
+                  fullName={barber.fullName}
+                  photoUrl={barber.photoUrl}
+                  city={barber.city}
+                  path={`/barber/${slug}`}
+                />
+              </div>
             </div>
           </div>
 
