@@ -51,7 +51,7 @@ export function ServiceSelectionList({
         </div>
       )}
 
-      <div className="flex max-h-72 flex-col gap-2 overflow-y-auto pr-1">
+      <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto pr-1 sm:max-h-96">
         {filtered.length === 0 ? (
           <p className="py-4 text-center text-sm text-muted-foreground">Uyğun xidmət tapılmadı.</p>
         ) : (
