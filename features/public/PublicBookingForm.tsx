@@ -86,13 +86,39 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
     let cancelled = false;
     setSlotsLoading(true);
     form.setValue("timeSlot", "");
-    fetchAvailableSlots(serviceIds, date)
-      .then((result) => {
-        if (!cancelled) setSlots(result);
-      })
-      .finally(() => {
-        if (!cancelled) setSlotsLoading(false);
-      });
+
+    // If the selected date has no availability (barber's hours are over for
+    // today, it's a day off, or it's fully booked), keep trying the next day
+    // instead of leaving the customer staring at an empty slot list — they'd
+    // otherwise have to manually click through the calendar day by day.
+    const maxDateString = formatDateInput(maxDate);
+
+    async function findAvailability() {
+      let searchDate = date;
+      let advanced = false;
+
+      while (!cancelled) {
+        const result = await fetchAvailableSlots(serviceIds, searchDate);
+        if (cancelled) return;
+
+        if (result.length > 0 || searchDate >= maxDateString) {
+          if (advanced) {
+            form.setValue("date", searchDate);
+            toast.info(`Seçilən tarixdə boş saat yoxdur — ilk əlçatan gün: ${formatDateDisplay(searchDate)}.`);
+          }
+          setSlots(result);
+          setSlotsLoading(false);
+          return;
+        }
+
+        const next = new Date(`${searchDate}T00:00:00`);
+        next.setDate(next.getDate() + 1);
+        searchDate = formatDateInput(next);
+        advanced = true;
+      }
+    }
+
+    findAvailability();
     return () => {
       cancelled = true;
     };
