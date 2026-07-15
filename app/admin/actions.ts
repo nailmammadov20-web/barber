@@ -45,6 +45,23 @@ export async function resetBarberPassword(barberId: string): Promise<ResetPasswo
   return { success: true, newPassword };
 }
 
+export async function deleteBarber(barberId: string): Promise<ActionResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+
+  const barber = await prisma.barberProfile.findUnique({ where: { id: barberId } });
+  if (!barber) return { success: false, error: "Bərbər tapılmadı." };
+
+  // Deleting the User (not just BarberProfile) cascades through the existing
+  // onDelete: Cascade relations — BarberProfile, Service, WorkingHour, Booking,
+  // ProfileView and Session all get removed with it, and the login is gone too.
+  await prisma.user.delete({ where: { id: barber.userId } });
+
+  revalidatePath("/admin");
+  revalidatePath(`/barber/${barber.slug}`);
+  return { success: true };
+}
+
 export async function updateBarberBio(barberId: string, bio: string): Promise<ActionResult> {
   const admin = await getCurrentAdmin();
   if (!admin) return { success: false, error: "Səlahiyyətiniz yoxdur." };

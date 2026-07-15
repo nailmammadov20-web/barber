@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ConfirmActionButton } from "@/features/dashboard/ConfirmActionButton";
 import { ResetPasswordButton } from "@/features/admin/ResetPasswordButton";
 import { EditBioDialog } from "@/features/admin/EditBioDialog";
+import { DeleteBarberButton } from "@/features/admin/DeleteBarberButton";
 import { toggleBarberActive } from "@/app/admin/actions";
 import { cn } from "@/lib/utils";
 
@@ -158,6 +159,7 @@ export function AdminBarberList({ barbers }: { barbers: AdminBarberItem[] }) {
                     confirmLabel="Bəli"
                     onConfirm={() => handleToggle(barber)}
                   />
+                  <DeleteBarberButton barberId={barber.id} fullName={barber.fullName} />
                 </div>
               </CardContent>
             </Card>
