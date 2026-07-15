@@ -4,6 +4,7 @@ const optionalUrl = z.string().trim().url("Düzgün URL daxil edin").optional().
 
 export const profileSchema = z.object({
   fullName: z.string().trim().min(2, "Ad Soyad daxil edin").max(100),
+  salonName: z.string().trim().max(100).optional().or(z.literal("")),
   phone: z
     .string()
     .trim()

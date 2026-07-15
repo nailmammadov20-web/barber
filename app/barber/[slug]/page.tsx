@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { MapPin, Phone } from "lucide-react";
+import { MapPin, Phone, Store } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PublicBookingForm } from "@/features/public/PublicBookingForm";
@@ -71,6 +71,22 @@ export default async function BarberPublicPage({
               </div>
 
               <h1 className="mt-4 text-2xl font-semibold lg:text-3xl">{barber.fullName}</h1>
+
+              {barber.salonName && (
+                <span className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                  {barber.logoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={barber.logoUrl}
+                      alt=""
+                      className="size-4 shrink-0 rounded-sm object-contain"
+                    />
+                  ) : (
+                    <Store className="size-3.5 shrink-0" />
+                  )}
+                  {barber.salonName}
+                </span>
+              )}
 
               <div className="mt-2 flex flex-col items-center gap-1.5 text-sm text-muted-foreground lg:items-start">
                 <span className="flex items-center gap-1.5">

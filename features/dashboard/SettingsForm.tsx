@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { MapPin, Phone, Radio, User } from "lucide-react";
+import { MapPin, Phone, Radio, Store, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,6 +92,29 @@ export function SettingsForm({ initialValues }: { initialValues: ProfileInput })
                       <Input className="h-11 rounded-lg pl-9" {...field} />
                     </div>
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="salonName"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>Salon/bərbərxana adı (istəyə bağlı)</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Store className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        className="h-11 rounded-lg pl-9"
+                        placeholder="məs. Hezi Aslanov Bərbərxanası"
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <p className="text-xs text-muted-foreground">
+                    Şəxsi adınızla yanaşı işlədiyiniz salonun adı da ictimai səhifənizdə göstərilə bilər.
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}

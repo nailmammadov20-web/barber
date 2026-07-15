@@ -62,6 +62,8 @@ model BarberProfile {
   bio          String?
   photoUrl     String?
   coverUrl     String?
+  salonName    String?
+  logoUrl      String?
   instagramUrl String?
   tiktokUrl    String?
   youtubeUrl   String?

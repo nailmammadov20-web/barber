@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
-import { ImageIcon, PanelTop } from "lucide-react";
+import { ImageIcon, PanelTop, Store } from "lucide-react";
 import { getCurrentBarber } from "@/lib/auth/session";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SettingsForm } from "@/features/dashboard/SettingsForm";
 import { AvatarUpload } from "@/features/dashboard/AvatarUpload";
 import { CoverUpload } from "@/features/dashboard/CoverUpload";
+import { LogoUpload } from "@/features/dashboard/LogoUpload";
 
 export default async function DashboardSettingsPage() {
   const session = await getCurrentBarber();
@@ -41,9 +42,22 @@ export default async function DashboardSettingsPage() {
         </CardContent>
       </Card>
 
+      <Card className="max-w-2xl">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Store className="size-4 text-primary" />
+            Salon loqosu
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <LogoUpload logoUrl={session.barber.logoUrl} />
+        </CardContent>
+      </Card>
+
       <SettingsForm
         initialValues={{
           fullName: session.barber.fullName,
+          salonName: session.barber.salonName ?? "",
           phone: session.barber.phone,
           city: session.barber.city,
           address: session.barber.address ?? "",

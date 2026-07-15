@@ -20,13 +20,14 @@ export async function updateProfile(input: ProfileInput): Promise<ActionResult> 
     return { success: false, error: "Məlumatlar düzgün deyil." };
   }
 
-  const { fullName, phone, city, address, bio, instagramUrl, tiktokUrl, youtubeUrl, facebookUrl, liveOn } =
+  const { fullName, salonName, phone, city, address, bio, instagramUrl, tiktokUrl, youtubeUrl, facebookUrl, liveOn } =
     parsed.data;
 
   await prisma.barberProfile.update({
     where: { id: session.barber.id },
     data: {
       fullName,
+      salonName: salonName || null,
       phone,
       city,
       address: address || null,
@@ -108,6 +109,31 @@ export async function removeCoverPhoto(): Promise<ActionResult> {
   if (!session) return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
 
   await prisma.barberProfile.update({ where: { id: session.barber.id }, data: { coverUrl: null } });
+
+  revalidatePath("/dashboard/settings");
+  revalidatePath(`/barber/${session.barber.slug}`);
+  return { success: true };
+}
+
+export async function uploadLogo(formData: FormData): Promise<UploadResult> {
+  const session = await getCurrentBarber();
+  if (!session) return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
+
+  const result = await fileToDataUri(formData.get("logo"));
+  if (!result.success) return result;
+
+  await prisma.barberProfile.update({ where: { id: session.barber.id }, data: { logoUrl: result.url } });
+
+  revalidatePath("/dashboard/settings");
+  revalidatePath(`/barber/${session.barber.slug}`);
+  return result;
+}
+
+export async function removeLogo(): Promise<ActionResult> {
+  const session = await getCurrentBarber();
+  if (!session) return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
+
+  await prisma.barberProfile.update({ where: { id: session.barber.id }, data: { logoUrl: null } });
 
   revalidatePath("/dashboard/settings");
   revalidatePath(`/barber/${session.barber.slug}`);
