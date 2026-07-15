@@ -5,6 +5,7 @@ import { toDateOnly } from "@/lib/slots";
 import { todayInBaku } from "@/lib/timezone";
 import { BookingsFilterBar } from "@/features/dashboard/BookingsFilterBar";
 import { BookingsList } from "@/features/dashboard/BookingsList";
+import { BlockTimeDialog } from "@/features/dashboard/BlockTimeDialog";
 import type { Prisma } from "@/lib/generated/prisma/client";
 
 const VALID_STATUSES = ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED", "NO_SHOW"] as const;
@@ -42,9 +43,12 @@ export default async function DashboardBookingsPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Rezervasiyalar</h1>
-        <p className="text-sm text-muted-foreground">Rezervasiyalarınızı izləyin və təsdiqləyin.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">Rezervasiyalar</h1>
+          <p className="text-sm text-muted-foreground">Rezervasiyalarınızı izləyin və təsdiqləyin.</p>
+        </div>
+        <BlockTimeDialog defaultDate={date} />
       </div>
 
       <BookingsFilterBar date={date} status={status} />
@@ -59,6 +63,7 @@ export default async function DashboardBookingsPage({
           serviceNames: booking.services.map((service) => service.name),
           durationMinutes: booking.durationMinutes,
           date: query ? booking.date.toISOString().slice(0, 10) : undefined,
+          isBlock: booking.isBlock,
         }))}
       />
     </div>

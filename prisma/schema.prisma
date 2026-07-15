@@ -110,6 +110,7 @@ model Booking {
   timeSlot        String
   durationMinutes Int               @default(30)
   status          BookingStatus     @default(PENDING)
+  isBlock         Boolean           @default(false)
   createdAt       DateTime          @default(now())
 
   @@unique([barberId, date, timeSlot])

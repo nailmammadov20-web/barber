@@ -62,7 +62,7 @@ export default async function DashboardOverviewPage() {
 
       <OverdueBookingsPrompt
         bookings={todayBookings
-          .filter((booking) => booking.status === "CONFIRMED")
+          .filter((booking) => booking.status === "CONFIRMED" && !booking.isBlock)
           .map((booking) => ({
             id: booking.id,
             customerName: booking.customerName,
@@ -108,6 +108,7 @@ export default async function DashboardOverviewPage() {
             status: booking.status,
             serviceNames: booking.services.map((service) => service.name),
             durationMinutes: booking.durationMinutes,
+            isBlock: booking.isBlock,
           }))}
         />
       </div>

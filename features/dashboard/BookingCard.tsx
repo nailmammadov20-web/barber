@@ -2,13 +2,14 @@
 
 import { useTransition } from "react";
 import { toast } from "sonner";
+import { Ban } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmActionButton } from "@/features/dashboard/ConfirmActionButton";
 import { buildConfirmationMessage, buildWhatsappLink } from "@/lib/whatsapp";
-import { confirmBooking, setBookingStatus } from "@/app/dashboard/bookings/actions";
+import { confirmBooking, setBookingStatus, deleteManualBlock } from "@/app/dashboard/bookings/actions";
 
 export type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | "NO_SHOW";
 
@@ -21,6 +22,7 @@ export type BookingCardData = {
   serviceNames: string[];
   durationMinutes: number;
   date?: string;
+  isBlock?: boolean;
 };
 
 const STATUS_LABEL: Record<BookingStatus, string> = {
@@ -70,6 +72,44 @@ export function BookingCard({ booking }: { booking: BookingCardData }) {
       }
       toast.success(successMessage);
     });
+  }
+
+  function handleDeleteBlock() {
+    startTransition(async () => {
+      const result = await deleteManualBlock(booking.id);
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Blok ləğv edildi.");
+    });
+  }
+
+  if (booking.isBlock) {
+    return (
+      <Card className="border-dashed bg-muted/30">
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardTitle className="flex items-center gap-2 text-base font-medium text-muted-foreground">
+            <Ban className="size-4 shrink-0" />
+            {booking.timeSlot} — {booking.customerName}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-muted-foreground">
+            {booking.durationMinutes} dəq{booking.date && <> · {booking.date}</>}
+          </p>
+          <ConfirmActionButton
+            label="Blokun ləğvi"
+            variant="outline"
+            disabled={isPending}
+            title="Bu vaxtı yenidən açırsınız?"
+            description={`${booking.timeSlot} vaxtı üçün bloklama silinəcək, bu saat yenidən rezervasiya üçün əlçatan olacaq.`}
+            confirmLabel="Bəli, sil"
+            onConfirm={handleDeleteBlock}
+          />
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
