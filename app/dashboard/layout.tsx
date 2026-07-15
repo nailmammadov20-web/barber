@@ -5,6 +5,7 @@ import { getCurrentBarber } from "@/lib/auth/session";
 import { logout } from "@/app/dashboard/actions";
 import { Button } from "@/components/ui/button";
 import { DashboardNav } from "@/features/dashboard/DashboardNav";
+import { PresencePing } from "@/features/dashboard/PresencePing";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getCurrentBarber();
@@ -14,6 +15,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pt-16 pb-20 md:flex-row md:pt-8 md:pb-8">
+      <PresencePing />
       <aside className="flex flex-col gap-4 md:w-60">
         <div className="flex items-center gap-3 rounded-xl border bg-card px-3 py-3">
           {session.barber.photoUrl ? (

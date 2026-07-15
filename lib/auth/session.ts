@@ -9,7 +9,10 @@ export async function createSession(userId: string): Promise<void> {
   const token = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + SESSION_TTL_DAYS * 24 * 60 * 60 * 1000);
 
-  await prisma.session.create({ data: { token, userId, expiresAt } });
+  await prisma.$transaction([
+    prisma.session.create({ data: { token, userId, expiresAt } }),
+    prisma.user.update({ where: { id: userId }, data: { lastActiveAt: new Date() } }),
+  ]);
 
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, token, {

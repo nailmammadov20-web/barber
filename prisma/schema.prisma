@@ -36,6 +36,7 @@ model User {
   passwordHash  String
   role          Role           @default(BARBER)
   createdAt     DateTime       @default(now())
+  lastActiveAt  DateTime?
   barberProfile BarberProfile?
   sessions      Session[]
 }

@@ -3,8 +3,12 @@ import { CalendarCheck, CircleCheckBig, Users, Wallet } from "lucide-react";
 import { getCurrentAdmin } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { formatDateDisplay } from "@/lib/formatDate";
+import { isInactiveSince, isNewSince, isOnline } from "@/lib/presence";
 import { Card, CardContent } from "@/components/ui/card";
 import { AdminBarberList, type AdminBarberItem } from "@/features/admin/AdminBarberList";
+
+const NEW_WITHIN_DAYS = 7;
+const INACTIVE_AFTER_DAYS = 30;
 
 export default async function AdminPage() {
   const admin = await getCurrentAdmin();
@@ -12,7 +16,10 @@ export default async function AdminPage() {
 
   const [barbers, totalBarbers, activeBarbers, totalBookings, revenueBookings] = await Promise.all([
     prisma.barberProfile.findMany({
-      include: { user: true, _count: { select: { bookings: true } } },
+      include: {
+        user: true,
+        _count: { select: { bookings: true, services: true, workingHours: true } },
+      },
       orderBy: { createdAt: "desc" },
     }),
     prisma.barberProfile.count(),
@@ -32,19 +39,29 @@ export default async function AdminPage() {
     revenueByBarber.set(booking.barberId, (revenueByBarber.get(booking.barberId) ?? 0) + bookingTotal);
   }
 
-  const items: AdminBarberItem[] = barbers.map((barber) => ({
-    id: barber.id,
-    fullName: barber.fullName,
-    email: barber.user.email,
-    phone: barber.phone,
-    city: barber.city,
-    slug: barber.slug,
-    active: barber.active,
-    bookingsCount: barber._count.bookings,
-    revenue: revenueByBarber.get(barber.id) ?? 0,
-    bio: barber.bio ?? "",
-    createdAtDisplay: formatDateDisplay(barber.createdAt.toISOString().slice(0, 10)),
-  }));
+  const items: AdminBarberItem[] = barbers.map((barber) => {
+    const lastActiveAt = barber.user.lastActiveAt;
+    return {
+      id: barber.id,
+      fullName: barber.fullName,
+      email: barber.user.email,
+      phone: barber.phone,
+      city: barber.city,
+      slug: barber.slug,
+      active: barber.active,
+      bookingsCount: barber._count.bookings,
+      revenue: revenueByBarber.get(barber.id) ?? 0,
+      bio: barber.bio ?? "",
+      createdAtDisplay: formatDateDisplay(barber.createdAt.toISOString().slice(0, 10)),
+      isOnline: isOnline(lastActiveAt),
+      isNew: isNewSince(barber.createdAt, NEW_WITHIN_DAYS),
+      isInactive: isInactiveSince(lastActiveAt, INACTIVE_AFTER_DAYS),
+      isProfileComplete: Boolean(barber.photoUrl) && barber._count.services > 0 && barber._count.workingHours > 0,
+      lastActiveDisplay: lastActiveAt
+        ? formatDateDisplay(lastActiveAt.toISOString().slice(0, 10))
+        : "Heç vaxt daxil olmayıb",
+    };
+  });
 
   const stats = [
     { label: "Ümumi bərbərlər", value: totalBarbers, icon: Users },
