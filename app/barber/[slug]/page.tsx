@@ -73,19 +73,21 @@ export default async function BarberPublicPage({
               <h1 className="mt-4 text-2xl font-semibold lg:text-3xl">{barber.fullName}</h1>
 
               {barber.salonName && (
-                <span className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                <div className="mt-2 inline-flex max-w-full items-center gap-2 rounded-full border bg-muted/50 py-1 pr-3.5 pl-1">
                   {barber.logoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={barber.logoUrl}
                       alt=""
-                      className="size-4 shrink-0 rounded-sm object-contain"
+                      className="size-6 shrink-0 rounded-full border border-background object-cover"
                     />
                   ) : (
-                    <Store className="size-3.5 shrink-0" />
+                    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                      <Store className="size-3.5" />
+                    </span>
                   )}
-                  {barber.salonName}
-                </span>
+                  <span className="truncate text-sm font-medium">{barber.salonName}</span>
+                </div>
               )}
 
               <div className="mt-2 flex flex-col items-center gap-1.5 text-sm text-muted-foreground lg:items-start">
