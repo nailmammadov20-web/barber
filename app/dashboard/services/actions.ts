@@ -24,6 +24,32 @@ export async function createService(input: ServiceInput): Promise<ActionResult> 
   return { success: true };
 }
 
+export async function createServices(items: ServiceInput[]): Promise<ActionResult> {
+  const session = await getCurrentBarber();
+  if (!session) return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
+
+  if (items.length === 0) {
+    return { success: false, error: "Ən azı bir xidmət seçin." };
+  }
+
+  const parsedItems: ServiceInput[] = [];
+  for (const item of items) {
+    const parsed = serviceSchema.safeParse(item);
+    if (!parsed.success) {
+      return { success: false, error: `"${item.name}" üçün məlumatlar düzgün deyil.` };
+    }
+    parsedItems.push(parsed.data);
+  }
+
+  await prisma.service.createMany({
+    data: parsedItems.map((item) => ({ ...item, barberId: session.barber.id })),
+  });
+
+  revalidatePath("/dashboard/services");
+  revalidatePath(`/barber/${session.barber.slug}`);
+  return { success: true };
+}
+
 export async function updateService(id: string, input: ServiceInput): Promise<ActionResult> {
   const session = await getCurrentBarber();
   if (!session) return { success: false, error: "Sessiya bitib, yenidən daxil olun." };

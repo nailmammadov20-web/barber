@@ -22,7 +22,7 @@ export default async function DashboardServicesPage() {
             Müştərilərin ictimai səhifənizdə görəcəyi xidmətləri idarə edin.
           </p>
         </div>
-        <AddServiceDialog />
+        <AddServiceDialog existingNames={services.map((service) => service.name)} />
       </div>
 
       <ServiceList services={services} />
