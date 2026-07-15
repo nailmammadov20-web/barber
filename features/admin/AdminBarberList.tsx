@@ -143,7 +143,7 @@ export function AdminBarberList({ barbers }: { barbers: AdminBarberItem[] }) {
                     </p>
                   )}
                 </div>
-                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0">
                   <EditBioDialog barberId={barber.id} fullName={barber.fullName} bio={barber.bio} />
                   <ResetPasswordButton barberId={barber.id} fullName={barber.fullName} />
                   <ConfirmActionButton
