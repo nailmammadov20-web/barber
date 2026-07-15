@@ -5,7 +5,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Check, Plus, Search, X } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -107,7 +107,7 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
           </Button>
         }
       />
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] max-h-[85vh] overflow-x-hidden overflow-y-auto sm:w-full sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Xidmətlər əlavə et</DialogTitle>
           <DialogDescription>
@@ -139,16 +139,13 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
                     onClick={() => toggleTemplate(template)}
                     aria-pressed={checked}
                     className={cn(
-                      "flex flex-col items-start gap-1 rounded-xl border px-3 py-2.5 text-left transition-colors",
+                      "flex min-w-0 flex-col items-start gap-1 rounded-xl border px-3 py-2.5 text-left transition-colors",
                       checked
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-input bg-background hover:border-primary/50 hover:bg-muted"
                     )}
                   >
-                    <span className="flex items-center gap-1.5 text-sm font-medium leading-tight">
-                      {checked && <Check className="size-3.5 shrink-0" />}
-                      {template.name}
-                    </span>
+                    <span className="text-sm font-medium leading-tight">{template.name}</span>
                     <span className={cn("text-xs", checked ? "text-primary-foreground/80" : "text-muted-foreground")}>
                       {template.durationMinutes} dəq · {template.price} AZN
                     </span>
@@ -169,9 +166,9 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
                 }
               }}
               placeholder="Öz xidmətinizin adı"
-              className="h-9"
+              className="h-9 min-w-0 flex-1"
             />
-            <Button type="button" variant="outline" size="sm" onClick={addCustom}>
+            <Button type="button" variant="outline" size="sm" className="shrink-0" onClick={addCustom}>
               Əlavə et
             </Button>
           </div>
@@ -182,35 +179,38 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
                 Seçilənlər ({fields.length})
               </p>
               {fields.map((field, index) => (
-                <div key={field.id} className="flex items-center gap-2">
+                <div key={field.id} className="flex flex-col gap-1.5 rounded-lg border p-2 sm:flex-row sm:items-center sm:gap-2 sm:border-0 sm:p-0">
                   <span className="min-w-0 flex-1 truncate text-sm font-medium">{field.name}</span>
-                  <Input
-                    type="number"
-                    min={5}
-                    max={480}
-                    aria-label={`${field.name} müddəti`}
-                    {...form.register(`items.${index}.durationMinutes`, { valueAsNumber: true })}
-                    className="h-9 w-20"
-                  />
-                  <span className="text-xs text-muted-foreground">dəq</span>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={100000}
-                    aria-label={`${field.name} qiyməti`}
-                    {...form.register(`items.${index}.price`, { valueAsNumber: true })}
-                    className="h-9 w-20"
-                  />
-                  <span className="text-xs text-muted-foreground">AZN</span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => remove(index)}
-                    aria-label={`${field.name} sil`}
-                  >
-                    <X className="size-4" />
-                  </Button>
+                  <div className="flex items-center gap-1.5">
+                    <Input
+                      type="number"
+                      min={5}
+                      max={480}
+                      aria-label={`${field.name} müddəti`}
+                      {...form.register(`items.${index}.durationMinutes`, { valueAsNumber: true })}
+                      className="h-9 w-16 min-w-0"
+                    />
+                    <span className="shrink-0 text-xs text-muted-foreground">dəq</span>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100000}
+                      aria-label={`${field.name} qiyməti`}
+                      {...form.register(`items.${index}.price`, { valueAsNumber: true })}
+                      className="h-9 w-16 min-w-0"
+                    />
+                    <span className="shrink-0 text-xs text-muted-foreground">AZN</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      className="ml-auto shrink-0 sm:ml-0"
+                      onClick={() => remove(index)}
+                      aria-label={`${field.name} sil`}
+                    >
+                      <X className="size-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
