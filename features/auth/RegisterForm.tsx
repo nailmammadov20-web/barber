@@ -49,7 +49,7 @@ export function RegisterForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" autoComplete="on">
         <FormField
           control={form.control}
           name="fullName"
@@ -57,7 +57,7 @@ export function RegisterForm() {
             <FormItem>
               <FormLabel>Ad Soyad</FormLabel>
               <FormControl>
-                <Input placeholder="Ad Soyad" {...field} />
+                <Input autoComplete="name" placeholder="Ad Soyad" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -70,7 +70,7 @@ export function RegisterForm() {
             <FormItem>
               <FormLabel>Telefon</FormLabel>
               <FormControl>
-                <Input placeholder="+994 50 123 45 67" {...field} />
+                <Input autoComplete="tel" placeholder="+994 50 123 45 67" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -83,7 +83,7 @@ export function RegisterForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="email@nümunə.com" {...field} />
+                <Input type="email" autoComplete="username" placeholder="email@nümunə.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -96,7 +96,7 @@ export function RegisterForm() {
             <FormItem>
               <FormLabel>Parol</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="Ən azı 6 simvol" {...field} />
+                <Input type="password" autoComplete="new-password" placeholder="Ən azı 6 simvol" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

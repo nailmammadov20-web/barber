@@ -43,7 +43,7 @@ export function LoginForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" autoComplete="on">
         <FormField
           control={form.control}
           name="email"
@@ -51,7 +51,7 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="email@nümunə.com" {...field} />
+                <Input type="email" autoComplete="username" placeholder="email@nümunə.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -64,7 +64,7 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Parol</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="Parolunuz" {...field} />
+                <Input type="password" autoComplete="current-password" placeholder="Parolunuz" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
