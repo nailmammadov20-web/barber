@@ -79,11 +79,11 @@ export default async function BarberPublicPage({
                     <img
                       src={barber.logoUrl}
                       alt=""
-                      className="size-6 shrink-0 rounded-full border border-background object-cover"
+                      className="size-8 shrink-0 rounded-full border border-background object-cover"
                     />
                   ) : (
-                    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
-                      <Store className="size-3.5" />
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                      <Store className="size-4" />
                     </span>
                   )}
                   <span className="truncate text-sm font-medium">{barber.salonName}</span>
