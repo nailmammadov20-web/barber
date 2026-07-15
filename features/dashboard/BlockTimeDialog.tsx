@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -25,7 +25,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { manualBlockSchema, type ManualBlockInput } from "@/lib/validation/manualBlock";
-import { createManualBlock } from "@/app/dashboard/bookings/actions";
+import { createManualBlock, fetchOwnAvailableSlots } from "@/app/dashboard/bookings/actions";
+import { SlotPicker } from "@/features/public/SlotPicker";
 import { cn } from "@/lib/utils";
 
 const DURATION_PRESETS = [30, 60, 90, 120];
@@ -37,11 +38,38 @@ function defaultValues(date: string): ManualBlockInput {
 export function BlockTimeDialog({ defaultDate }: { defaultDate: string }) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, startTransition] = useTransition();
+  const [slots, setSlots] = useState<string[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
 
   const form = useForm<ManualBlockInput>({
     resolver: zodResolver(manualBlockSchema),
     defaultValues: defaultValues(defaultDate),
   });
+
+  const date = form.watch("date");
+  const durationMinutes = form.watch("durationMinutes");
+  const timeSlot = form.watch("timeSlot");
+
+  useEffect(() => {
+    if (!open || !date || !durationMinutes) {
+      setSlots([]);
+      return;
+    }
+    let cancelled = false;
+    setSlotsLoading(true);
+    form.setValue("timeSlot", "");
+    fetchOwnAvailableSlots(date, durationMinutes)
+      .then((result) => {
+        if (!cancelled) setSlots(result);
+      })
+      .finally(() => {
+        if (!cancelled) setSlotsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, date, durationMinutes]);
 
   function onSubmit(values: ManualBlockInput) {
     startTransition(async () => {
@@ -72,40 +100,25 @@ export function BlockTimeDialog({ defaultDate }: { defaultDate: string }) {
           </Button>
         }
       />
-      <DialogContent>
+      <DialogContent className="max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Vaxtı bağla</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tarix</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="timeSlot"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Saat</FormLabel>
-                    <FormControl>
-                      <Input type="time" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tarix</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -130,15 +143,24 @@ export function BlockTimeDialog({ defaultDate }: { defaultDate: string }) {
                       </button>
                     ))}
                   </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="timeSlot"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Saat</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      min={15}
-                      max={480}
-                      step={15}
+                    <SlotPicker
+                      slots={slots}
                       value={field.value}
-                      onChange={(event) => field.onChange(event.target.valueAsNumber)}
-                      className="w-32"
+                      onChange={field.onChange}
+                      loading={slotsLoading}
+                      emptyMessage="Bu tarixdə/müddətdə boş saat yoxdur."
                     />
                   </FormControl>
                   <FormMessage />
@@ -161,7 +183,7 @@ export function BlockTimeDialog({ defaultDate }: { defaultDate: string }) {
             />
 
             <DialogFooter>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || !timeSlot}>
                 {isSubmitting ? "Bağlanılır..." : "Vaxtı bağla"}
               </Button>
             </DialogFooter>

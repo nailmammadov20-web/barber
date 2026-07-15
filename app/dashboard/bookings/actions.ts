@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentBarber } from "@/lib/auth/session";
-import { parseTimeToMinutes, toDateOnly } from "@/lib/slots";
+import { getAvailableSlots, parseTimeToMinutes, toDateOnly } from "@/lib/slots";
 import { manualBlockSchema, type ManualBlockInput } from "@/lib/validation/manualBlock";
 
 type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | "NO_SHOW";
@@ -74,6 +74,14 @@ export async function setBookingStatus(id: string, status: BookingStatus): Promi
   revalidatePath("/dashboard/bookings");
   revalidatePath("/dashboard");
   return { success: true };
+}
+
+export async function fetchOwnAvailableSlots(date: string, durationMinutes: number): Promise<string[]> {
+  const session = await getCurrentBarber();
+  if (!session) return [];
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || durationMinutes <= 0) return [];
+
+  return getAvailableSlots(session.barber.id, date, durationMinutes);
 }
 
 export async function createManualBlock(input: ManualBlockInput): Promise<SimpleResult> {
