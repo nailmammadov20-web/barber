@@ -3,10 +3,14 @@ import { getCurrentBarber } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { WorkingHoursForm } from "@/features/dashboard/WorkingHoursForm";
 import type { WorkingHourEntry } from "@/lib/validation/workingHours";
+import { getLocale } from "@/lib/i18n/getLocale";
+import { getDictionary } from "@/lib/i18n/getDictionary";
 
 export default async function DashboardHoursPage() {
   const session = await getCurrentBarber();
   if (!session) redirect("/login");
+
+  const { hours: t } = getDictionary(await getLocale()).dashboard;
 
   const existing = await prisma.workingHour.findMany({ where: { barberId: session.barber.id } });
   const byWeekday = new Map(existing.map((entry) => [entry.weekday, entry]));
@@ -24,8 +28,8 @@ export default async function DashboardHoursPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold">İş saatları</h1>
-        <p className="text-sm text-muted-foreground">Hər gün üçün işlədiyiniz saatları təyin edin.</p>
+        <h1 className="text-2xl font-semibold">{t.pageTitle}</h1>
+        <p className="text-sm text-muted-foreground">{t.pageSubtitle}</p>
       </div>
       <WorkingHoursForm initialHours={initialHours} />
     </div>

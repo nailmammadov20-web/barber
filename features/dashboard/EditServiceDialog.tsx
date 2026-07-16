@@ -32,7 +32,8 @@ import { useDictionary } from "@/lib/i18n/I18nProvider";
 export function EditServiceDialog({ service }: { service: ServiceItem }) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, startTransition] = useTransition();
-  const { common } = useDictionary();
+  const { common, dashboard } = useDictionary();
+  const t = dashboard.services;
 
   const form = useForm<ServiceInput>({
     resolver: zodResolver(serviceSchema),
@@ -50,7 +51,7 @@ export function EditServiceDialog({ service }: { service: ServiceItem }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Xidmət yeniləndi.");
+      toast.success(t.updatedToast);
       setOpen(false);
     });
   }
@@ -65,14 +66,14 @@ export function EditServiceDialog({ service }: { service: ServiceItem }) {
     >
       <DialogTrigger
         render={
-          <Button size="icon-sm" variant="outline" aria-label="Redaktə et">
+          <Button size="icon-sm" variant="outline" aria-label={t.editAria}>
             <Pencil className="size-4" />
           </Button>
         }
       />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Xidməti redaktə et</DialogTitle>
+          <DialogTitle>{t.editDialogTitle}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -81,7 +82,7 @@ export function EditServiceDialog({ service }: { service: ServiceItem }) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Xidmət adı</FormLabel>
+                  <FormLabel>{t.nameLabel}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -95,7 +96,7 @@ export function EditServiceDialog({ service }: { service: ServiceItem }) {
                 name="durationMinutes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Müddət (dəq)</FormLabel>
+                    <FormLabel>{t.durationLabel}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -112,7 +113,7 @@ export function EditServiceDialog({ service }: { service: ServiceItem }) {
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Qiymət ({common.currency})</FormLabel>
+                    <FormLabel>{t.priceLabelTemplate.replace("{currency}", common.currency)}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -127,7 +128,7 @@ export function EditServiceDialog({ service }: { service: ServiceItem }) {
             </div>
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Yadda saxlanılır..." : "Yadda saxla"}
+                {isSubmitting ? t.saving : t.save}
               </Button>
             </DialogFooter>
           </form>

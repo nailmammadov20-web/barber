@@ -37,7 +37,8 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
   const [query, setQuery] = useState("");
   const [customName, setCustomName] = useState("");
   const [isSubmitting, startTransition] = useTransition();
-  const { common } = useDictionary();
+  const { common, dashboard } = useDictionary();
+  const t = dashboard.services;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -70,7 +71,7 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
     const name = customName.trim();
     if (!name) return;
     if (isSelected(name)) {
-      toast.error("Bu xidmət artıq siyahıdadır.");
+      toast.error(t.alreadyInList);
       return;
     }
     append({ name, durationMinutes: 30, price: 0 });
@@ -91,7 +92,7 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
         toast.error(result.error);
         return;
       }
-      toast.success(`${values.items.length} xidmət əlavə edildi.`);
+      toast.success(t.addedToastTemplate.replace("{count}", String(values.items.length)));
       resetAll();
       setOpen(false);
     });
@@ -109,7 +110,7 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
         render={
           <Button className="w-full rounded-lg sm:w-fit">
             <Plus className="size-4" />
-            Yeni xidmət
+            {t.newService}
           </Button>
         }
       />
@@ -117,10 +118,8 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
         {step === "select" ? (
           <>
             <DialogHeader>
-              <DialogTitle>Xidmətlər seçin</DialogTitle>
-              <DialogDescription>
-                Şablonlardan istədiyiniz qədər seçin. İstəsəniz öz xidmətinizi də yaza bilərsiniz.
-              </DialogDescription>
+              <DialogTitle>{t.selectStepTitle}</DialogTitle>
+              <DialogDescription>{t.selectStepDescription}</DialogDescription>
             </DialogHeader>
 
             <div className="flex flex-col gap-4">
@@ -130,7 +129,7 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
                   <Input
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Xidmət axtar..."
+                    placeholder={t.searchPlaceholder}
                     className="h-9 pl-9"
                   />
                 </div>
@@ -157,7 +156,7 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
                         <span
                           className={cn("text-xs", checked ? "text-primary-foreground/80" : "text-muted-foreground")}
                         >
-                          {template.durationMinutes} dəq · {template.price} {common.currency}
+                          {template.durationMinutes} {t.minutesAbbr} · {template.price} {common.currency}
                         </span>
                       </button>
                     );
@@ -175,26 +174,30 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
                       addCustom();
                     }
                   }}
-                  placeholder="Öz xidmətinizin adı"
+                  placeholder={t.customNamePlaceholder}
                   className="h-9 min-w-0 flex-1"
                 />
                 <Button type="button" variant="outline" size="sm" className="shrink-0" onClick={addCustom}>
-                  Əlavə et
+                  {t.addCustom}
                 </Button>
               </div>
             </div>
 
             <DialogFooter>
               <Button type="button" disabled={fields.length === 0} onClick={() => setStep("configure")}>
-                {fields.length > 0 ? `Davam et (${fields.length})` : "Xidmət seçin"}
+                {fields.length > 0
+                  ? t.continueTemplate.replace("{count}", String(fields.length))
+                  : t.chooseService}
               </Button>
             </DialogFooter>
           </>
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Qiymət və müddəti təyin edin</DialogTitle>
-              <DialogDescription>Seçdiyiniz {fields.length} xidmət üçün son məlumatları düzəldin.</DialogDescription>
+              <DialogTitle>{t.configureStepTitle}</DialogTitle>
+              <DialogDescription>
+                {t.configureStepDescriptionTemplate.replace("{count}", String(fields.length))}
+              </DialogDescription>
             </DialogHeader>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -210,16 +213,16 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
                         type="number"
                         min={5}
                         max={480}
-                        aria-label={`${field.name} müddəti`}
+                        aria-label={t.durationAriaTemplate.replace("{name}", field.name)}
                         {...form.register(`items.${index}.durationMinutes`, { valueAsNumber: true })}
                         className="h-9 w-16 min-w-0"
                       />
-                      <span className="shrink-0 text-xs text-muted-foreground">dəq</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">{t.minutesAbbr}</span>
                       <Input
                         type="number"
                         min={0}
                         max={100000}
-                        aria-label={`${field.name} qiyməti`}
+                        aria-label={t.priceAriaTemplate.replace("{name}", field.name)}
                         {...form.register(`items.${index}.price`, { valueAsNumber: true })}
                         className="h-9 w-16 min-w-0"
                       />
@@ -230,7 +233,7 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
                         size="icon-sm"
                         className="ml-auto shrink-0 sm:ml-0"
                         onClick={() => remove(index)}
-                        aria-label={`${field.name} sil`}
+                        aria-label={t.removeAriaTemplate.replace("{name}", field.name)}
                       >
                         <X className="size-4" />
                       </Button>
@@ -242,10 +245,12 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
               <DialogFooter className="sm:justify-between">
                 <Button type="button" variant="ghost" onClick={() => setStep("select")}>
                   <ArrowLeft className="size-4" />
-                  Geri
+                  {t.back}
                 </Button>
                 <Button type="submit" disabled={isSubmitting || fields.length === 0}>
-                  {isSubmitting ? "Əlavə edilir..." : `${fields.length} xidməti əlavə et`}
+                  {isSubmitting
+                    ? t.addingInProgress
+                    : t.addCountTemplate.replace("{count}", String(fields.length))}
                 </Button>
               </DialogFooter>
             </form>

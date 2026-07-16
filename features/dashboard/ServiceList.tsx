@@ -22,7 +22,8 @@ export type ServiceItem = {
 
 export function ServiceList({ services }: { services: ServiceItem[] }) {
   const [isPending, startTransition] = useTransition();
-  const { common } = useDictionary();
+  const { common, dashboard } = useDictionary();
+  const t = dashboard.services;
 
   function handleToggle(id: string) {
     startTransition(async () => {
@@ -35,12 +36,12 @@ export function ServiceList({ services }: { services: ServiceItem[] }) {
     startTransition(async () => {
       const result = await deleteService(id);
       if (!result.success) toast.error(result.error);
-      else toast.success("Xidmət silindi.");
+      else toast.success(t.deletedToast);
     });
   }
 
   if (services.length === 0) {
-    return <p className="text-sm text-muted-foreground">Hələ xidmət əlavə etməmisiniz.</p>;
+    return <p className="text-sm text-muted-foreground">{t.emptyList}</p>;
   }
 
   return (
@@ -52,11 +53,11 @@ export function ServiceList({ services }: { services: ServiceItem[] }) {
               <div className="flex flex-wrap items-center gap-2">
                 <p className="truncate font-medium">{service.name}</p>
                 <Badge variant={service.active ? "default" : "outline"}>
-                  {service.active ? "Aktiv" : "Deaktiv"}
+                  {service.active ? t.active : t.inactive}
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground">
-                {service.durationMinutes} dəq · {service.price} {common.currency}
+                {service.durationMinutes} {t.minutesAbbr} · {service.price} {common.currency}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
@@ -66,19 +67,19 @@ export function ServiceList({ services }: { services: ServiceItem[] }) {
                 variant="outline"
                 disabled={isPending}
                 onClick={() => handleToggle(service.id)}
-                aria-label={service.active ? "Deaktiv et" : "Aktiv et"}
+                aria-label={service.active ? t.deactivate : t.activate}
               >
                 {service.active ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </Button>
               <ConfirmActionButton
                 label={<Trash2 className="size-4" />}
-                ariaLabel="Sil"
+                ariaLabel={t.deleteAria}
                 variant="destructive"
                 size="icon-sm"
                 disabled={isPending}
-                title="Xidməti silirsiniz?"
-                description={`"${service.name}" xidməti həmişəlik silinəcək. Əgər bu xidmətlə bağlı rezervasiya mövcuddursa, silinə bilməyəcək — bu halda əvəzinə deaktiv edin.`}
-                confirmLabel="Bəli, sil"
+                title={t.deleteConfirmTitle}
+                description={t.deleteConfirmDescTemplate.replace("{name}", service.name)}
+                confirmLabel={t.yesDelete}
                 onConfirm={() => handleDelete(service.id)}
               />
             </div>

@@ -8,20 +8,12 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { saveWorkingHours } from "@/app/dashboard/hours/actions";
 import type { WorkingHourEntry } from "@/lib/validation/workingHours";
-
-const WEEKDAY_LABELS = [
-  "Bazar",
-  "Bazar ertəsi",
-  "Çərşənbə axşamı",
-  "Çərşənbə",
-  "Cümə axşamı",
-  "Cümə",
-  "Şənbə",
-];
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 export function WorkingHoursForm({ initialHours }: { initialHours: WorkingHourEntry[] }) {
   const [hours, setHours] = useState(initialHours);
   const [isSubmitting, startTransition] = useTransition();
+  const { hours: t } = useDictionary().dashboard;
 
   function updateEntry(weekday: number, patch: Partial<WorkingHourEntry>) {
     setHours((prev) => prev.map((entry) => (entry.weekday === weekday ? { ...entry, ...patch } : entry)));
@@ -34,7 +26,7 @@ export function WorkingHoursForm({ initialHours }: { initialHours: WorkingHourEn
         toast.error(result.error);
         return;
       }
-      toast.success("İş saatları yadda saxlanıldı.");
+      toast.success(t.savedToast);
     });
   }
 
@@ -43,7 +35,7 @@ export function WorkingHoursForm({ initialHours }: { initialHours: WorkingHourEn
       {hours.map((entry) => (
         <div key={entry.weekday} className="flex flex-col gap-3 rounded-xl border p-3">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-sm font-medium">{WEEKDAY_LABELS[entry.weekday]}</span>
+            <span className="text-sm font-medium">{t.weekdays[entry.weekday]}</span>
             <button
               type="button"
               onClick={() => updateEntry(entry.weekday, { isOff: !entry.isOff })}
@@ -54,7 +46,7 @@ export function WorkingHoursForm({ initialHours }: { initialHours: WorkingHourEn
                   : "bg-primary/15 text-primary"
               )}
             >
-              {entry.isOff ? "Bağlı" : "Açıq"}
+              {entry.isOff ? t.closed : t.open}
             </button>
           </div>
           {!entry.isOff && (
@@ -77,7 +69,7 @@ export function WorkingHoursForm({ initialHours }: { initialHours: WorkingHourEn
         </div>
       ))}
       <Button onClick={handleSave} disabled={isSubmitting} className="mt-2 h-11 w-full rounded-lg sm:w-fit">
-        {isSubmitting ? "Yadda saxlanılır..." : "Yadda saxla"}
+        {isSubmitting ? t.saving : t.save}
       </Button>
     </div>
   );
