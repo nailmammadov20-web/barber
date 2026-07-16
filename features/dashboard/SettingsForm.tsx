@@ -1,11 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { MapPin, Phone, Radio, Store, User } from "lucide-react";
+import { LocateFixed, MapPin, Phone, Radio, Store, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,11 +47,59 @@ export function SettingsForm({
 }) {
   const router = useRouter();
   const [isSubmitting, startTransition] = useTransition();
+  const [isLocating, setIsLocating] = useState(false);
 
   const form = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
     defaultValues: initialValues,
   });
+
+  function handleUseCurrentLocation() {
+    if (!navigator.geolocation) {
+      toast.error("Brauzeriniz məkan xidmətini dəstəkləmir.");
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&addressdetails=1&accept-language=az`
+          );
+          if (!response.ok) throw new Error("reverse-geocode-failed");
+
+          const data = await response.json();
+          const addr = data.address ?? {};
+          const street = [addr.road, addr.house_number].filter(Boolean).join(" ");
+          const city = addr.city || addr.town || addr.village || addr.municipality || addr.county;
+
+          if (street) form.setValue("address", street, { shouldDirty: true });
+          if (city) form.setValue("city", city, { shouldDirty: true });
+
+          if (!street && !city) {
+            toast.error("Ünvan tapılmadı, xanaları əl ilə doldurun.");
+          } else {
+            toast.success("Məkan məlumatları dolduruldu. Yoxlayıb yadda saxlayın.");
+          }
+        } catch {
+          toast.error("Ünvan müəyyən edilə bilmədi. Xanaları əl ilə doldurun.");
+        } finally {
+          setIsLocating(false);
+        }
+      },
+      (error) => {
+        setIsLocating(false);
+        toast.error(
+          error.code === error.PERMISSION_DENIED
+            ? "Məkan icazəsi verilmədi."
+            : "Məkan müəyyən edilə bilmədi."
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
 
   function onSubmit(values: ProfileInput) {
     startTransition(async () => {
@@ -143,11 +191,22 @@ export function SettingsForm({
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-wrap items-center justify-between gap-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <MapPin className="size-4 text-primary" />
               Məkan
             </CardTitle>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="rounded-lg"
+              disabled={isLocating}
+              onClick={handleUseCurrentLocation}
+            >
+              <LocateFixed className="size-4" />
+              {isLocating ? "Müəyyən edilir..." : "Cari məkanımı istifadə et"}
+            </Button>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <FormField
