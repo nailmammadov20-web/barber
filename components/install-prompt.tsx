@@ -3,70 +3,35 @@
 import { useEffect, useState } from "react";
 import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useInstallPrompt } from "@/lib/pwa/useInstallPrompt";
 
 const DISMISSED_KEY = "barberhub-install-dismissed";
 
-type BeforeInstallPromptEvent = Event & {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-};
-
-function isStandalone() {
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    (window.navigator as Navigator & { standalone?: boolean }).standalone === true
-  );
-}
-
-function isIos() {
-  return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
-}
-
 export function InstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showIosHint, setShowIosHint] = useState(false);
+  const { canPromptInstall, isStandalone, isIos, promptInstall } = useInstallPrompt();
+  const [dismissed, setDismissed] = useState(true);
 
   useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
-    }
-
-    if (isStandalone() || localStorage.getItem(DISMISSED_KEY)) return;
-
-    function handleBeforeInstallPrompt(event: Event) {
-      event.preventDefault();
-      setDeferredPrompt(event as BeforeInstallPromptEvent);
-    }
-
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-
-    const iosCheckTimer = setTimeout(() => {
-      if (isIos()) setShowIosHint(true);
+    const timer = setTimeout(() => {
+      setDismissed(!!localStorage.getItem(DISMISSED_KEY));
     }, 0);
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-      clearTimeout(iosCheckTimer);
-    };
+    return () => clearTimeout(timer);
   }, []);
 
   function dismiss() {
     localStorage.setItem(DISMISSED_KEY, "1");
-    setDeferredPrompt(null);
-    setShowIosHint(false);
+    setDismissed(true);
   }
 
   async function handleInstall() {
-    if (!deferredPrompt) return;
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
+    const outcome = await promptInstall();
     if (outcome === "accepted") {
       localStorage.setItem(DISMISSED_KEY, "1");
+      setDismissed(true);
     }
-    setDeferredPrompt(null);
   }
 
-  if (!deferredPrompt && !showIosHint) return null;
+  if (isStandalone || dismissed || (!canPromptInstall && !isIos)) return null;
 
   return (
     <div className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-md items-center gap-3 rounded-2xl border bg-card px-4 py-3 text-card-foreground shadow-lg ring-1 ring-foreground/10">
@@ -76,12 +41,12 @@ export function InstallPrompt() {
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium">BarberHub-u telefonunuza yükləyin</p>
         <p className="text-xs text-muted-foreground">
-          {deferredPrompt
+          {canPromptInstall
             ? "Ana ekrana əlavə edin, tətbiq kimi işlədin."
             : "Paylaş düyməsi → “Ana ekrana əlavə et”"}
         </p>
       </div>
-      {deferredPrompt && (
+      {canPromptInstall && (
         <Button size="sm" className="rounded-lg" onClick={handleInstall}>
           Yüklə
         </Button>

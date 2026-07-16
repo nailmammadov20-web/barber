@@ -393,6 +393,14 @@ const dictionary: DictionaryShape = {
       geoPermissionDeniedToast: "Vietos leidimas nesuteiktas.",
       geoFailedToast: "Nepavyko nustatyti vietos.",
     },
+    installApp: {
+      cardTitle: "Įdiekite programėlę į telefoną",
+      description: "Įdiekite BarberHub kaip programėlę telefone, kad galėtumėte greičiau prisijungti.",
+      iosHint: "„Safari“ naršyklėje paspauskite dalinimosi mygtuką, tada pasirinkite „Pridėti į pradžios ekraną“.",
+      fallbackHint: "Naršyklės meniu pasirinkite „Pridėti į pradžios ekraną“ arba „Įdiegti programėlę“.",
+      installButton: "Įdiegti",
+      alreadyInstalled: "Programėlė jau įdiegta jūsų telefone.",
+    },
   },
 };
 

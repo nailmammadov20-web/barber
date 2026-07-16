@@ -392,6 +392,14 @@ const dictionary: DictionaryShape = {
       geoPermissionDeniedToast: "Məkan icazəsi verilmədi.",
       geoFailedToast: "Məkan müəyyən edilə bilmədi.",
     },
+    installApp: {
+      cardTitle: "Tətbiqi telefona yüklə",
+      description: "BarberHub-u telefonunuza tətbiq kimi yükləyin, daha sürətli daxil olun.",
+      iosHint: "Safari-də paylaşma düyməsinə basın, sonra “Ana ekrana əlavə et” seçin.",
+      fallbackHint: "Brauzerinizin menyusundan “Ana ekrana əlavə et” və ya “Tətbiqi quraşdır” seçin.",
+      installButton: "Yüklə",
+      alreadyInstalled: "Tətbiq artıq telefonunuza yüklənib.",
+    },
   },
 };
 

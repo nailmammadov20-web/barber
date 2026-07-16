@@ -9,6 +9,7 @@ import { AvatarUpload } from "@/features/dashboard/AvatarUpload";
 import { CoverUpload } from "@/features/dashboard/CoverUpload";
 import { LogoUpload } from "@/features/dashboard/LogoUpload";
 import { PushNotificationCard } from "@/features/dashboard/PushNotificationCard";
+import { InstallAppCard } from "@/features/dashboard/InstallAppCard";
 import { getLocale } from "@/lib/i18n/getLocale";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 
@@ -63,6 +64,8 @@ export default async function DashboardSettingsPage() {
           <LogoUpload logoUrl={session.barber.logoUrl} />
         </CardContent>
       </Card>
+
+      <InstallAppCard />
 
       <PushNotificationCard />
 

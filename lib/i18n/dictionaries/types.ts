@@ -360,5 +360,13 @@ export type DictionaryShape = {
       geoPermissionDeniedToast: string;
       geoFailedToast: string;
     };
+    installApp: {
+      cardTitle: string;
+      description: string;
+      iosHint: string;
+      fallbackHint: string;
+      installButton: string;
+      alreadyInstalled: string;
+    };
   };
 };
