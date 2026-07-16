@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 export type PublicService = {
   id: string;
@@ -24,6 +25,7 @@ export function ServiceSelectionList({
   onChange: (value: string[]) => void;
 }) {
   const [query, setQuery] = useState("");
+  const { common, booking } = useDictionary();
 
   const filtered = query.trim()
     ? services.filter((service) => service.name.toLowerCase().includes(query.trim().toLowerCase()))
@@ -45,14 +47,14 @@ export function ServiceSelectionList({
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Xidmət axtar..."
+            placeholder={booking.searchPlaceholder}
             className="h-9 pl-9"
           />
         </div>
       )}
 
       {filtered.length === 0 ? (
-        <p className="py-4 text-center text-sm text-muted-foreground">Uyğun xidmət tapılmadı.</p>
+        <p className="py-4 text-center text-sm text-muted-foreground">{booking.noMatch}</p>
       ) : (
         // Fixed 2-column grid (not flex-wrap) so every cell has the same width —
         // toggling a selection never changes that item's size, so nothing else in
@@ -77,7 +79,7 @@ export function ServiceSelectionList({
               >
                 <span className="text-sm leading-tight font-medium">{service.name}</span>
                 <span className={cn("text-xs", checked ? "text-primary-foreground/80" : "text-muted-foreground")}>
-                  {service.price} AZN
+                  {service.price} {common.currency}
                 </span>
               </button>
             );
@@ -87,7 +89,8 @@ export function ServiceSelectionList({
 
       {selected.length > 0 && (
         <p className="text-xs text-muted-foreground">
-          {selected.length} xidmət seçilib · Ümumi: {totalDuration} dəqiqə · {totalPrice} AZN
+          {selected.length} {booking.selectedSuffix} · {booking.totalLabel} {totalDuration}{" "}
+          {booking.minutesUnit} · {totalPrice} {common.currency}
         </p>
       )}
     </div>

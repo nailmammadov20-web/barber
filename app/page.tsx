@@ -3,26 +3,15 @@ import Image from "next/image";
 import { CalendarCheck, LogIn, MessageCircleMore, Scissors, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { getLocale } from "@/lib/i18n/getLocale";
+import { getDictionary } from "@/lib/i18n/getDictionary";
 
-const STEPS = [
-  {
-    icon: UserPlus,
-    title: "Qeydiyyatdan keç",
-    description: "Ad, telefon və email ilə saniyələr içində öz hesabınızı yaradın.",
-  },
-  {
-    icon: Scissors,
-    title: "Profilini qur",
-    description: "Xidmətlərinizi, qiymətlərinizi və iş saatlarınızı təyin edin.",
-  },
-  {
-    icon: CalendarCheck,
-    title: "Rezervasiya qəbul et",
-    description: "Öz ictimai səhifəniz üzərindən müştərilər birbaşa sizə yazılsın.",
-  },
-];
+const STEP_ICONS = [UserPlus, Scissors, CalendarCheck];
 
-export default function Home() {
+export default async function Home() {
+  const locale = await getLocale();
+  const { home } = getDictionary(locale);
+
   return (
     <main className="flex flex-1 flex-col">
       <section className="relative flex min-h-[88vh] items-center overflow-hidden">
@@ -37,17 +26,14 @@ export default function Home() {
 
         <div className="relative mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 text-center text-white">
           <span className="rounded-full border border-white/20 bg-white/10 px-4 py-1 text-xs font-medium tracking-wide uppercase backdrop-blur-sm">
-            Bərbərlər üçün rezervasiya platforması
+            {home.badge}
           </span>
           <h1 className="text-4xl font-semibold tracking-tight sm:text-6xl">
-            Rezervasiya qəbul etmək heç vaxt
+            {home.heroTitleLine1}
             <br />
-            bu qədər asan olmayıb.
+            {home.heroTitleLine2}
           </h1>
-          <p className="max-w-xl text-base text-white/80 sm:text-lg">
-            Onlayn rezervasiya, iş qrafiki və müştəri idarəetməsi. Bütün biznesiniz bir
-            platformada.
-          </p>
+          <p className="max-w-xl text-base text-white/80 sm:text-lg">{home.heroSubtitle}</p>
           <div className="mt-2 flex w-full max-w-md flex-col gap-4 sm:flex-row">
             <Button
               size="lg"
@@ -56,7 +42,7 @@ export default function Home() {
               render={
                 <Link href="/register">
                   <UserPlus className="size-5" />
-                  Qeydiyyatdan keç
+                  {home.register}
                 </Link>
               }
             />
@@ -68,7 +54,7 @@ export default function Home() {
               render={
                 <Link href="/login">
                   <LogIn className="size-5" />
-                  Daxil ol
+                  {home.login}
                 </Link>
               }
             />
@@ -78,22 +64,27 @@ export default function Home() {
 
       <section className="mx-auto w-full max-w-5xl px-4 py-20">
         <div className="mb-12 text-center">
-          <h2 className="text-2xl font-semibold sm:text-3xl">Necə işləyir?</h2>
-          <p className="mt-2 text-muted-foreground">Üç sadə addımda öz ictimai səhifəniz aktiv olur.</p>
+          <h2 className="text-2xl font-semibold sm:text-3xl">{home.howItWorks}</h2>
+          <p className="mt-2 text-muted-foreground">{home.howItWorksSubtitle}</p>
         </div>
         <div className="grid gap-6 sm:grid-cols-3">
-          {STEPS.map((step, index) => (
-            <Card key={step.title} className="border-none bg-muted/40 shadow-none">
-              <CardContent className="flex flex-col items-start gap-3 pt-2">
-                <div className="flex size-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
-                  <step.icon className="size-5" />
-                </div>
-                <div className="text-sm font-medium text-muted-foreground">Addım {index + 1}</div>
-                <h3 className="text-lg font-semibold">{step.title}</h3>
-                <p className="text-sm text-muted-foreground">{step.description}</p>
-              </CardContent>
-            </Card>
-          ))}
+          {home.steps.map((step, index) => {
+            const Icon = STEP_ICONS[index];
+            return (
+              <Card key={step.title} className="border-none bg-muted/40 shadow-none">
+                <CardContent className="flex flex-col items-start gap-3 pt-2">
+                  <div className="flex size-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                    <Icon className="size-5" />
+                  </div>
+                  <div className="text-sm font-medium text-muted-foreground">
+                    {home.stepLabel} {index + 1}
+                  </div>
+                  <h3 className="text-lg font-semibold">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground">{step.description}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </section>
 
@@ -103,14 +94,8 @@ export default function Home() {
             <div className="flex size-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
               <MessageCircleMore className="size-5" />
             </div>
-            <h2 className="text-2xl font-semibold sm:text-3xl">
-              Rezervasiyanı qəbul et, WhatsApp özü yazsın
-            </h2>
-            <p className="text-muted-foreground">
-              Müştəri rezervasiya edəndə siz &ldquo;Qəbul et&rdquo; düyməsinə basırsınız — hazır mesaj
-              şablonu ilə WhatsApp açılır, siz sadəcə göndərirsiniz. Ayrıca tətbiq və ya
-              inteqrasiya lazım deyil.
-            </p>
+            <h2 className="text-2xl font-semibold sm:text-3xl">{home.whatsappTitle}</h2>
+            <p className="text-muted-foreground">{home.whatsappBody}</p>
           </div>
           <div className="relative aspect-4/3 overflow-hidden rounded-2xl">
             <Image
@@ -124,7 +109,7 @@ export default function Home() {
       </section>
 
       <footer className="border-t px-4 py-8 text-center text-sm text-muted-foreground">
-        BarberHub — bərbərlər üçün müstəqil rezervasiya platforması
+        {home.footer}
       </footer>
     </main>
   );

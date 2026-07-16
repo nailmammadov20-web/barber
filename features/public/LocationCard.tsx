@@ -2,7 +2,15 @@ import { MapPin, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-export function LocationCard({ address, city }: { address: string | null; city: string }) {
+export function LocationCard({
+  address,
+  city,
+  mapTitle,
+}: {
+  address: string | null;
+  city: string;
+  mapTitle: string;
+}) {
   const query = address ? `${address}, ${city}` : city;
   const encoded = encodeURIComponent(query);
 
@@ -18,7 +26,7 @@ export function LocationCard({ address, city }: { address: string | null; city: 
           className="h-full w-full border-0"
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          title="Bərbərin məkanı"
+          title={mapTitle}
         />
       </div>
       <CardContent className="flex flex-col gap-3 py-4">

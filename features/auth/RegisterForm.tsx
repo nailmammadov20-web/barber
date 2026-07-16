@@ -18,10 +18,12 @@ import {
 } from "@/components/ui/form";
 import { registerSchema, type RegisterInput } from "@/lib/validation/auth";
 import { registerBarber } from "@/app/register/actions";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 export function RegisterForm() {
   const router = useRouter();
   const [isSubmitting, startTransition] = useTransition();
+  const { register: t } = useDictionary().auth;
 
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
@@ -41,7 +43,7 @@ export function RegisterForm() {
         toast.error(result.error);
         return;
       }
-      toast.success("Qeydiyyat tamamlandı!");
+      toast.success(t.success);
       router.push("/dashboard");
       router.refresh();
     });
@@ -55,9 +57,9 @@ export function RegisterForm() {
           name="fullName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Ad Soyad</FormLabel>
+              <FormLabel>{t.fullName}</FormLabel>
               <FormControl>
-                <Input autoComplete="name" placeholder="Ad Soyad" {...field} />
+                <Input autoComplete="name" placeholder={t.fullNamePlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -68,9 +70,9 @@ export function RegisterForm() {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telefon</FormLabel>
+              <FormLabel>{t.phone}</FormLabel>
               <FormControl>
-                <Input autoComplete="tel" placeholder="+994 50 123 45 67" {...field} />
+                <Input autoComplete="tel" placeholder={t.phonePlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -81,9 +83,9 @@ export function RegisterForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{t.email}</FormLabel>
               <FormControl>
-                <Input type="email" autoComplete="username" placeholder="email@nümunə.com" {...field} />
+                <Input type="email" autoComplete="username" placeholder={t.emailPlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -94,9 +96,9 @@ export function RegisterForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Parol</FormLabel>
+              <FormLabel>{t.password}</FormLabel>
               <FormControl>
-                <Input type="password" autoComplete="new-password" placeholder="Ən azı 6 simvol" {...field} />
+                <Input type="password" autoComplete="new-password" placeholder={t.passwordPlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -107,9 +109,9 @@ export function RegisterForm() {
           name="city"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Şəhər</FormLabel>
+              <FormLabel>{t.city}</FormLabel>
               <FormControl>
-                <Input placeholder="Bakı" {...field} />
+                <Input placeholder={t.cityPlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -117,7 +119,7 @@ export function RegisterForm() {
         />
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Qeydiyyat edilir..." : "Qeydiyyatdan keç"}
+          {isSubmitting ? t.submitting : t.submit}
         </Button>
       </form>
     </Form>

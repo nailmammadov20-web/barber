@@ -2,12 +2,7 @@
 
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const PERIODS = [
-  { label: "Səhər", from: 0, to: 12 },
-  { label: "Günorta", from: 12, to: 17 },
-  { label: "Axşam", from: 17, to: 24 },
-];
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 function hourOf(slot: string): number {
   return Number(slot.slice(0, 2));
@@ -18,7 +13,7 @@ export function SlotPicker({
   value,
   onChange,
   loading,
-  emptyMessage = "Bu tarixdə boş saat yoxdur.",
+  emptyMessage,
 }: {
   slots: string[];
   value: string;
@@ -26,6 +21,14 @@ export function SlotPicker({
   loading?: boolean;
   emptyMessage?: string;
 }) {
+  const { booking } = useDictionary();
+  const PERIODS = [
+    { label: booking.periodMorning, from: 0, to: 12 },
+    { label: booking.periodAfternoon, from: 12, to: 17 },
+    { label: booking.periodEvening, from: 17, to: 24 },
+  ];
+  const resolvedEmptyMessage = emptyMessage ?? booking.noSlots;
+
   if (loading) {
     return (
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -39,7 +42,7 @@ export function SlotPicker({
   if (slots.length === 0) {
     return (
       <p className="rounded-lg border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
-        {emptyMessage}
+        {resolvedEmptyMessage}
       </p>
     );
   }

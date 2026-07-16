@@ -30,11 +30,13 @@ import { ServiceSelectionList, type PublicService } from "@/features/public/Serv
 import { SlotPicker } from "@/features/public/SlotPicker";
 import { formatDateDisplay, formatDateInput } from "@/lib/formatDate";
 import { todayInBakuAsDate } from "@/lib/timezone";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 const CUSTOMER_STORAGE_KEY = "barberhub_customer";
 const MAX_DAYS_AHEAD = 30;
 
 export function PublicBookingForm({ services }: { services: PublicService[] }) {
+  const { common, booking } = useDictionary();
   const today = todayInBakuAsDate();
   const maxDate = todayInBakuAsDate();
   maxDate.setDate(maxDate.getDate() + MAX_DAYS_AHEAD);
@@ -104,7 +106,9 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
         if (result.length > 0 || searchDate >= maxDateString) {
           if (advanced) {
             form.setValue("date", searchDate);
-            toast.info(`Seçilən tarixdə boş saat yoxdur — ilk əlçatan gün: ${formatDateDisplay(searchDate)}.`);
+            toast.info(
+              booking.noAvailabilityTemplate.replace("{date}", formatDateDisplay(searchDate))
+            );
           }
           setSlots(result);
           setSlotsLoading(false);
@@ -133,7 +137,7 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
         return;
       }
 
-      toast.success("Rezervasiyanız qəbul edildi. Bərbər təsdiqləyəcək.");
+      toast.success(booking.successToast);
       form.setValue("timeSlot", "");
       setSlots((prev) => prev.filter((slot) => slot !== values.timeSlot));
 
@@ -159,7 +163,7 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
           name="serviceIds"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Xidmətlər</FormLabel>
+              <FormLabel>{booking.servicesLabel}</FormLabel>
               <FormControl>
                 <ServiceSelectionList services={services} value={field.value} onChange={field.onChange} />
               </FormControl>
@@ -175,7 +179,7 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
             <FormItem className="flex flex-col">
               <FormLabel className="flex items-center gap-1.5">
                 <CalendarDays className="size-3.5 text-muted-foreground" />
-                Tarix
+                {booking.dateLabel}
               </FormLabel>
               <FormControl>
                 <Button
@@ -185,7 +189,7 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
                   className="h-12 w-full justify-start rounded-xl px-3.5 text-base font-normal"
                 >
                   <CalendarDays className="size-4 text-muted-foreground" />
-                  {field.value ? formatDateDisplay(field.value) : "Tarix seçin"}
+                  {field.value ? formatDateDisplay(field.value) : booking.selectDate}
                 </Button>
               </FormControl>
 
@@ -196,21 +200,21 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
               */}
               <Dialog open={dateOpen} onOpenChange={setDateOpen}>
                 <DialogHeader className="sr-only">
-                  <DialogTitle>Tarix seçin</DialogTitle>
-                  <DialogDescription>Rezervasiya üçün tarix seçin.</DialogDescription>
+                  <DialogTitle>{booking.selectDate}</DialogTitle>
+                  <DialogDescription>{booking.selectDateDescription}</DialogDescription>
                 </DialogHeader>
                 <DialogContent
                   showCloseButton={false}
                   className="inset-x-0 bottom-0 top-auto left-0 w-full max-w-full translate-x-0 translate-y-0 gap-0 rounded-t-2xl rounded-b-none p-0 sm:inset-auto sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:w-auto sm:max-w-none sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl"
                 >
                   <div className="flex items-center justify-between border-b px-4 py-3">
-                    <p className="text-sm font-medium">Tarix seçin</p>
+                    <p className="text-sm font-medium">{booking.selectDate}</p>
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon-sm"
                       onClick={() => setDateOpen(false)}
-                      aria-label="Bağla"
+                      aria-label={booking.close}
                     >
                       <X className="size-4" />
                     </Button>
@@ -244,7 +248,7 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
             <FormItem>
               <FormLabel className="flex items-center gap-1.5">
                 <Clock className="size-3.5 text-muted-foreground" />
-                Saat
+                {booking.timeLabel}
               </FormLabel>
               <FormControl>
                 <SlotPicker
@@ -253,9 +257,7 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
                   onChange={field.onChange}
                   loading={slotsLoading}
                   emptyMessage={
-                    serviceIds.length === 0
-                      ? "Əvvəlcə yuxarıdan xidmət seçin."
-                      : "Bu tarixdə boş saat yoxdur."
+                    serviceIds.length === 0 ? booking.selectServiceFirst : booking.noSlots
                   }
                 />
               </FormControl>
@@ -272,13 +274,13 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
               <FormItem>
                 <FormLabel className="flex items-center gap-1.5">
                   <User className="size-3.5 text-muted-foreground" />
-                  Ad Soyad
+                  {booking.fullName}
                 </FormLabel>
                 <FormControl>
                   <div className="relative">
                     <User className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      placeholder="Ad Soyad"
+                      placeholder={booking.fullName}
                       className="h-12 rounded-xl pl-10 text-base"
                       {...field}
                     />
@@ -296,13 +298,13 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
               <FormItem>
                 <FormLabel className="flex items-center gap-1.5">
                   <Phone className="size-3.5 text-muted-foreground" />
-                  Telefon
+                  {booking.phone}
                 </FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Phone className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      placeholder="+994 50 123 45 67"
+                      placeholder={booking.phonePlaceholder}
                       className="h-12 rounded-xl pl-10 text-base"
                       {...field}
                     />
@@ -321,11 +323,11 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
                 {selectedServices.map((service) => service.name).join(", ")}
               </p>
               <p className="text-xs text-muted-foreground">
-                {formatDateDisplay(date)} · {timeSlot} · {totalDuration} dəqiqə
+                {formatDateDisplay(date)} · {timeSlot} · {totalDuration} {booking.minutesUnit}
               </p>
             </div>
             <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-              {totalPrice} AZN
+              {totalPrice} {common.currency}
             </span>
           </div>
         )}
@@ -334,12 +336,12 @@ export function PublicBookingForm({ services }: { services: PublicService[] }) {
           {isSubmitting ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Göndərilir...
+              {booking.submitting}
             </>
           ) : (
             <>
               <CalendarCheck className="size-4" />
-              Rezervasiya et
+              {booking.submit}
             </>
           )}
         </Button>

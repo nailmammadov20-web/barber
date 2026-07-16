@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Eye } from "lucide-react";
 import { pingProfileView } from "@/app/barber/[slug]/actions";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 const PING_INTERVAL_MS = 20_000;
 
@@ -28,6 +29,7 @@ export function ProfileViewBadge({
 }) {
   const [totalViews, setTotalViews] = useState(initialTotalViews);
   const [currentlyViewing, setCurrentlyViewing] = useState(initialCurrentlyViewing);
+  const { booking } = useDictionary();
 
   useEffect(() => {
     let cancelled = false;
@@ -51,7 +53,7 @@ export function ProfileViewBadge({
   return (
     <span className="flex flex-wrap items-center justify-center gap-1.5 text-xs text-muted-foreground lg:justify-start">
       <Eye className="size-3.5 shrink-0" />
-      {formatCount(totalViews)} baxış
+      {formatCount(totalViews)} {booking.viewsSuffix}
       {currentlyViewing > 0 && (
         <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
           <span className="text-muted-foreground/60">·</span>
@@ -59,7 +61,7 @@ export function ProfileViewBadge({
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-75" />
             <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
           </span>
-          {formatCount(currentlyViewing)} nəfər hazırda baxır
+          {formatCount(currentlyViewing)} {booking.viewingNowSuffix}
         </span>
       )}
     </span>

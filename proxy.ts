@@ -1,18 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
+import { geolocation } from "@vercel/functions";
+import { LOCALE_COOKIE, type Locale } from "@/lib/i18n/config";
 
 const SESSION_COOKIE = "barberhub_session";
 
-export function proxy(request: NextRequest) {
-  const token = request.cookies.get(SESSION_COOKIE)?.value;
+function resolveLocaleFromCountry(country: string | undefined): Locale {
+  return country === "LT" ? "lt" : "az";
+}
 
-  if (!token) {
-    const loginUrl = new URL("/login", request.url);
-    return NextResponse.redirect(loginUrl);
+export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) {
+    const token = request.cookies.get(SESSION_COOKIE)?.value;
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+
+  if (!request.cookies.has(LOCALE_COOKIE)) {
+    const { country } = geolocation(request);
+    response.cookies.set(LOCALE_COOKIE, resolveLocaleFromCountry(country), {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    });
+  }
+
+  return response;
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon|images|sw\\.js|.*\\.(?:ico|png|jpg|jpeg|svg|webmanifest)).*)",
+  ],
 };

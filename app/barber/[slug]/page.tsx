@@ -11,6 +11,8 @@ import { ScrollToMapButton } from "@/features/public/ScrollToMapButton";
 import { ShareStatusButton } from "@/features/shared/ShareStatusButton";
 import { SOCIAL_GRADIENTS } from "@/lib/social";
 import { getViewStats } from "@/lib/profileViews";
+import { getLocale } from "@/lib/i18n/getLocale";
+import { getDictionary } from "@/lib/i18n/getDictionary";
 
 export default async function BarberPublicPage({
   params,
@@ -18,6 +20,8 @@ export default async function BarberPublicPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const locale = await getLocale();
+  const { booking } = getDictionary(locale);
 
   const barber = await prisma.barberProfile.findUnique({
     where: { slug },
@@ -140,12 +144,12 @@ export default async function BarberPublicPage({
           <div id="booking" className="scroll-mt-4 lg:pt-6">
             {barber.services.length === 0 ? (
               <p className="text-center text-sm text-muted-foreground lg:text-left">
-                Bu bərbər hələ xidmət əlavə etməyib.
+                {booking.noServices}
               </p>
             ) : (
               <Card className="lg:shadow-md">
                 <CardHeader>
-                  <CardTitle className="text-base">Rezervasiya et</CardTitle>
+                  <CardTitle className="text-base">{booking.cardTitle}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <PublicBookingForm
@@ -163,8 +167,8 @@ export default async function BarberPublicPage({
         </div>
 
         <div id="location" className="mt-10 scroll-mt-4">
-          <h2 className="mb-3 text-lg font-semibold">Məkan</h2>
-          <LocationCard address={barber.address} city={barber.city} />
+          <h2 className="mb-3 text-lg font-semibold">{booking.location}</h2>
+          <LocationCard address={barber.address} city={barber.city} mapTitle={booking.locationMapTitle} />
         </div>
       </div>
 

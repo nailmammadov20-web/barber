@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { CalendarCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 export function MobileBookingCta({ targetId }: { targetId: string }) {
   const [visible, setVisible] = useState(true);
+  const { booking } = useDictionary();
 
   useEffect(() => {
     const target = document.getElementById(targetId);
@@ -34,7 +36,7 @@ export function MobileBookingCta({ targetId }: { targetId: string }) {
     >
       <Button className="h-12 w-full rounded-xl text-base shadow-lg" onClick={handleClick}>
         <CalendarCheck className="size-4" />
-        Rezervasiya et
+        {booking.submit}
       </Button>
     </div>
   );
