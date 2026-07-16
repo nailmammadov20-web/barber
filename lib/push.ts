@@ -1,16 +1,22 @@
 import webpush from "web-push";
 import { prisma } from "@/lib/prisma";
 
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT!,
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT;
+const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY;
+
+const isConfigured = Boolean(VAPID_SUBJECT && VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY);
+
+if (isConfigured) {
+  webpush.setVapidDetails(VAPID_SUBJECT!, VAPID_PUBLIC_KEY!, VAPID_PRIVATE_KEY!);
+}
 
 export async function sendPushToBarber(
   barberId: string,
   payload: { title: string; body: string; url?: string }
 ): Promise<void> {
+  if (!isConfigured) return;
+
   const subscriptions = await prisma.pushSubscription.findMany({ where: { barberId } });
   if (subscriptions.length === 0) return;
 
