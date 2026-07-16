@@ -51,30 +51,41 @@ model Session {
 }
 
 model BarberProfile {
-  id           String        @id @default(cuid())
-  userId       String        @unique
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  slug         String        @unique
-  fullName     String
-  phone        String
-  city         String
-  address      String?
-  bio          String?
-  photoUrl     String?
-  coverUrl     String?
-  salonName    String?
-  logoUrl      String?
-  instagramUrl String?
-  tiktokUrl    String?
-  youtubeUrl   String?
-  facebookUrl  String?
-  liveOn       SocialPlatform?
-  active       Boolean       @default(true)
-  createdAt    DateTime      @default(now())
-  services     Service[]
-  workingHours WorkingHour[]
-  bookings     Booking[]
-  profileViews ProfileView[]
+  id                String             @id @default(cuid())
+  userId            String             @unique
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug              String             @unique
+  fullName          String
+  phone             String
+  city              String
+  address           String?
+  bio               String?
+  photoUrl          String?
+  coverUrl          String?
+  salonName         String?
+  logoUrl           String?
+  instagramUrl      String?
+  tiktokUrl         String?
+  youtubeUrl        String?
+  facebookUrl       String?
+  liveOn            SocialPlatform?
+  active            Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  services          Service[]
+  workingHours      WorkingHour[]
+  bookings          Booking[]
+  profileViews      ProfileView[]
+  pushSubscriptions PushSubscription[]
+}
+
+model PushSubscription {
+  id        String        @id @default(cuid())
+  barberId  String
+  barber    BarberProfile @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  endpoint  String        @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime      @default(now())
 }
 
 model Service {
@@ -102,28 +113,28 @@ model WorkingHour {
 }
 
 model Booking {
-  id              String            @id @default(cuid())
+  id              String           @id @default(cuid())
   barberId        String
-  barber          BarberProfile     @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  barber          BarberProfile    @relation(fields: [barberId], references: [id], onDelete: Cascade)
   services        BookingService[]
   customerName    String
   customerPhone   String
   date            DateTime
   timeSlot        String
-  durationMinutes Int               @default(30)
-  status          BookingStatus     @default(PENDING)
-  isBlock         Boolean           @default(false)
-  createdAt       DateTime          @default(now())
+  durationMinutes Int              @default(30)
+  status          BookingStatus    @default(PENDING)
+  isBlock         Boolean          @default(false)
+  createdAt       DateTime         @default(now())
 
   @@unique([barberId, date, timeSlot])
 }
 
 model BookingService {
-  id              String   @id @default(cuid())
+  id              String  @id @default(cuid())
   bookingId       String
-  booking         Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  booking         Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   serviceId       String
-  service         Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  service         Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   name            String
   price           Int
   durationMinutes Int

@@ -8,6 +8,7 @@ import { getAvailableSlots, toDateOnly } from "@/lib/slots";
 import { getViewStats, trackProfileView, type ViewStats } from "@/lib/profileViews";
 import { getCurrentBarber } from "@/lib/auth/session";
 import { bookingSchema, type BookingInput } from "@/lib/validation/booking";
+import { sendPushToBarber } from "@/lib/push";
 
 const VISITOR_COOKIE = "pv_visitor";
 
@@ -89,6 +90,13 @@ export async function createBooking(input: BookingInput): Promise<CreateBookingR
 
   revalidatePath("/dashboard/bookings");
   revalidatePath("/dashboard");
+
+  sendPushToBarber(barberId, {
+    title: "Yeni rezervasiya!",
+    body: `${customerName} — ${date} ${timeSlot}`,
+    url: "/dashboard/bookings",
+  }).catch(() => {});
+
   return { success: true };
 }
 

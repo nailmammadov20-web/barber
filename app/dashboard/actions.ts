@@ -18,3 +18,36 @@ export async function pingPresence(): Promise<void> {
     data: { lastActiveAt: new Date() },
   });
 }
+
+type PushSubscriptionInput = {
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+};
+
+type ActionResult = { success: true } | { success: false; error: string };
+
+export async function subscribeToPush(subscription: PushSubscriptionInput): Promise<ActionResult> {
+  const session = await getCurrentBarber();
+  if (!session) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+
+  await prisma.pushSubscription.upsert({
+    where: { endpoint: subscription.endpoint },
+    update: { barberId: session.barber.id, p256dh: subscription.keys.p256dh, auth: subscription.keys.auth },
+    create: {
+      barberId: session.barber.id,
+      endpoint: subscription.endpoint,
+      p256dh: subscription.keys.p256dh,
+      auth: subscription.keys.auth,
+    },
+  });
+
+  return { success: true };
+}
+
+export async function unsubscribeFromPush(endpoint: string): Promise<ActionResult> {
+  const session = await getCurrentBarber();
+  if (!session) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+
+  await prisma.pushSubscription.deleteMany({ where: { endpoint, barberId: session.barber.id } });
+  return { success: true };
+}

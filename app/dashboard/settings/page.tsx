@@ -8,6 +8,7 @@ import { SettingsForm } from "@/features/dashboard/SettingsForm";
 import { AvatarUpload } from "@/features/dashboard/AvatarUpload";
 import { CoverUpload } from "@/features/dashboard/CoverUpload";
 import { LogoUpload } from "@/features/dashboard/LogoUpload";
+import { PushNotificationCard } from "@/features/dashboard/PushNotificationCard";
 
 const NEW_WITHIN_DAYS = 7;
 
@@ -59,6 +60,8 @@ export default async function DashboardSettingsPage() {
           <LogoUpload logoUrl={session.barber.logoUrl} />
         </CardContent>
       </Card>
+
+      <PushNotificationCard />
 
       <SettingsForm
         hasServices={servicesCount > 0}
