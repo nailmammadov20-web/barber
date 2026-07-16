@@ -20,14 +20,16 @@ export function proxy(request: NextRequest) {
 
   const response = NextResponse.next();
 
-  if (!request.cookies.has(LOCALE_COOKIE)) {
-    const { country } = geolocation(request);
-    response.cookies.set(LOCALE_COOKIE, resolveLocaleFromCountry(country), {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 365,
-      sameSite: "lax",
-    });
-  }
+  // Re-derive the locale from geolocation on every request instead of only
+  // once — otherwise a single bad IP-to-country lookup (VPN, mobile carrier
+  // routing, a stale Vercel geo entry) pins the visitor to the wrong
+  // language for a full year with no way to self-correct.
+  const { country } = geolocation(request);
+  response.cookies.set(LOCALE_COOKIE, resolveLocaleFromCountry(country), {
+    path: "/",
+    maxAge: 60 * 60 * 24,
+    sameSite: "lax",
+  });
 
   return response;
 }
