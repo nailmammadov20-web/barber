@@ -6,6 +6,7 @@ import { logout } from "@/app/dashboard/actions";
 import { Button } from "@/components/ui/button";
 import { DashboardNav } from "@/features/dashboard/DashboardNav";
 import { PresencePing } from "@/features/dashboard/PresencePing";
+import { NotificationRequiredBanner } from "@/features/dashboard/NotificationRequiredBanner";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getCurrentBarber();
@@ -66,7 +67,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </Button>
         </form>
       </aside>
-      <div className="min-w-0 flex-1">{children}</div>
+      <div className="flex min-w-0 flex-1 flex-col gap-4">
+        <NotificationRequiredBanner />
+        {children}
+      </div>
     </div>
   );
 }

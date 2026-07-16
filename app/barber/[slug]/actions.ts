@@ -94,7 +94,7 @@ export async function createBooking(input: BookingInput): Promise<CreateBookingR
   sendPushToBarber(barberId, {
     title: "Yeni rezervasiya!",
     body: `${customerName} — ${date} ${timeSlot}`,
-    url: "/dashboard/bookings",
+    url: `/dashboard/bookings?date=${date}`,
   }).catch(() => {});
 
   return { success: true };
