@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { LocateFixed, MapPin, Phone, Radio, Store, User } from "lucide-react";
+import { Info, LocateFixed, MapPin, Phone, Radio, Store, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Select,
   SelectContent,
@@ -38,21 +39,52 @@ const LIVE_OPTIONS = [
   { value: "FACEBOOK", label: "Facebook" },
 ];
 
+const ADDRESS_TIP_KEY_PREFIX = "barberhub-address-tip-";
+const ADDRESS_TIP_MAX_SHOWS = 2;
+const ADDRESS_TIP_OPEN_DELAY_MS = 1200;
+const ADDRESS_TIP_AUTO_CLOSE_MS = 7000;
+
 export function SettingsForm({
   initialValues,
   hasServices,
+  barberId,
+  isNew,
 }: {
   initialValues: ProfileInput;
   hasServices: boolean;
+  barberId: string;
+  isNew: boolean;
 }) {
   const router = useRouter();
   const [isSubmitting, startTransition] = useTransition();
   const [isLocating, setIsLocating] = useState(false);
+  const [addressTipOpen, setAddressTipOpen] = useState(false);
 
   const form = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
     defaultValues: initialValues,
   });
+
+  useEffect(() => {
+    if (!isNew) return;
+
+    const storageKey = `${ADDRESS_TIP_KEY_PREFIX}${barberId}`;
+    const openTimer = setTimeout(() => {
+      const shownCount = Number(localStorage.getItem(storageKey) ?? "0");
+      if (shownCount >= ADDRESS_TIP_MAX_SHOWS) return;
+
+      localStorage.setItem(storageKey, String(shownCount + 1));
+      setAddressTipOpen(true);
+    }, ADDRESS_TIP_OPEN_DELAY_MS);
+
+    return () => clearTimeout(openTimer);
+  }, [barberId, isNew]);
+
+  useEffect(() => {
+    if (!addressTipOpen) return;
+    const closeTimer = setTimeout(() => setAddressTipOpen(false), ADDRESS_TIP_AUTO_CLOSE_MS);
+    return () => clearTimeout(closeTimer);
+  }, [addressTipOpen]);
 
   function handleUseCurrentLocation() {
     if (!navigator.geolocation) {
@@ -227,7 +259,27 @@ export function SettingsForm({
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ünvan</FormLabel>
+                  <FormLabel className="flex items-center gap-1.5">
+                    Ünvan
+                    <Tooltip open={addressTipOpen} onOpenChange={setAddressTipOpen}>
+                      <TooltipTrigger
+                        render={
+                          <button
+                            type="button"
+                            className="text-muted-foreground hover:text-foreground"
+                            aria-label="Ünvan üçün kömək"
+                          />
+                        }
+                      >
+                        <Info className="size-3.5" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        Küçə adını və bina nömrəsini dəqiq yazın (məs. &ldquo;Nizami küçəsi
+                        10&rdquo;). Google Maps və Waze məhz bu ünvana görə istiqamət göstərir —
+                        səhv və ya qeyri-dəqiq ünvan müştərinin sizi tapa bilməməsinə səbəb olur.
+                      </TooltipContent>
+                    </Tooltip>
+                  </FormLabel>
                   <FormControl>
                     <Input
                       className="h-11 rounded-lg"

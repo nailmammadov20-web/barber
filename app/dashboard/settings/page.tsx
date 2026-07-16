@@ -2,11 +2,14 @@ import { redirect } from "next/navigation";
 import { ImageIcon, PanelTop, Store } from "lucide-react";
 import { getCurrentBarber } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
+import { isNewSince } from "@/lib/presence";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SettingsForm } from "@/features/dashboard/SettingsForm";
 import { AvatarUpload } from "@/features/dashboard/AvatarUpload";
 import { CoverUpload } from "@/features/dashboard/CoverUpload";
 import { LogoUpload } from "@/features/dashboard/LogoUpload";
+
+const NEW_WITHIN_DAYS = 7;
 
 export default async function DashboardSettingsPage() {
   const session = await getCurrentBarber();
@@ -59,6 +62,8 @@ export default async function DashboardSettingsPage() {
 
       <SettingsForm
         hasServices={servicesCount > 0}
+        barberId={session.barber.id}
+        isNew={isNewSince(session.barber.createdAt, NEW_WITHIN_DAYS)}
         initialValues={{
           fullName: session.barber.fullName,
           salonName: session.barber.salonName ?? "",
