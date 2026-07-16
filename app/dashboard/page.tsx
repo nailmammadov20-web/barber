@@ -20,7 +20,8 @@ export default async function DashboardOverviewPage() {
   const session = await getCurrentBarber();
   if (!session) redirect("/login");
 
-  const { common } = getDictionary(await getLocale());
+  const { common, dashboard } = getDictionary(await getLocale());
+  const { overview } = dashboard;
 
   const barberId = session.barber.id;
   const today = toDateOnly(todayInBaku());
@@ -55,17 +56,19 @@ export default async function DashboardOverviewPage() {
   );
 
   const stats = [
-    { label: "Bugünkü rezervasiyalar", value: todayBookings.length, icon: CalendarClock },
-    { label: "Gözləyən rezervasiyalar", value: pendingCount, icon: Hourglass },
-    { label: "Bu ay tamamlanan", value: completedThisMonth, icon: CircleCheckBig },
-    { label: "Bu ay gəlir", value: `${monthlyRevenue} ${common.currency}`, icon: Wallet },
+    { label: overview.statToday, value: todayBookings.length, icon: CalendarClock },
+    { label: overview.statPending, value: pendingCount, icon: Hourglass },
+    { label: overview.statCompletedMonth, value: completedThisMonth, icon: CircleCheckBig },
+    { label: overview.statRevenueMonth, value: `${monthlyRevenue} ${common.currency}`, icon: Wallet },
   ];
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold">Ümumi baxış</h1>
-        <p className="text-sm text-muted-foreground">Salam, {session.barber.fullName}!</p>
+        <h1 className="text-2xl font-semibold">{overview.title}</h1>
+        <p className="text-sm text-muted-foreground">
+          {overview.greetingTemplate.replace("{name}", session.barber.fullName)}
+        </p>
       </div>
 
       <OverdueBookingsPrompt
@@ -116,7 +119,7 @@ export default async function DashboardOverviewPage() {
       </div>
 
       <div className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">Bugünkü randevular</h2>
+        <h2 className="text-lg font-semibold">{overview.todaysBookings}</h2>
         <BookingsList
           bookings={todayBookings.map((booking) => ({
             id: booking.id,

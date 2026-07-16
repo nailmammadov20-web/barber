@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmActionButton } from "@/features/dashboard/ConfirmActionButton";
 import { buildConfirmationMessage, buildWhatsappLink } from "@/lib/whatsapp";
 import { confirmBooking, setBookingStatus, deleteManualBlock } from "@/app/dashboard/bookings/actions";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 export type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | "NO_SHOW";
 
@@ -25,14 +26,6 @@ export type BookingCardData = {
   isBlock?: boolean;
 };
 
-const STATUS_LABEL: Record<BookingStatus, string> = {
-  PENDING: "Gözləyir",
-  CONFIRMED: "Təsdiqlənib",
-  CANCELLED: "Ləğv edilib",
-  COMPLETED: "Tamamlanıb",
-  NO_SHOW: "Gəlmədi",
-};
-
 const STATUS_VARIANT: Record<BookingStatus, "secondary" | "default" | "destructive" | "outline"> = {
   PENDING: "secondary",
   CONFIRMED: "default",
@@ -43,6 +36,15 @@ const STATUS_VARIANT: Record<BookingStatus, "secondary" | "default" | "destructi
 
 export function BookingCard({ booking }: { booking: BookingCardData }) {
   const [isPending, startTransition] = useTransition();
+  const { bookingStatus, bookingCard: t } = useDictionary().dashboard;
+
+  const STATUS_LABEL: Record<BookingStatus, string> = {
+    PENDING: bookingStatus.pending,
+    CONFIRMED: bookingStatus.confirmed,
+    CANCELLED: bookingStatus.cancelled,
+    COMPLETED: bookingStatus.completed,
+    NO_SHOW: bookingStatus.noShow,
+  };
 
   function handleConfirm() {
     startTransition(async () => {
@@ -58,7 +60,7 @@ export function BookingCard({ booking }: { booking: BookingCardData }) {
         date: result.booking.date,
         timeSlot: result.booking.timeSlot,
       });
-      toast.success("Rezervasiya təsdiqləndi.");
+      toast.success(t.confirmedToast);
       window.open(buildWhatsappLink(result.booking.customerPhone, message), "_blank");
     });
   }
@@ -81,7 +83,7 @@ export function BookingCard({ booking }: { booking: BookingCardData }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Blok ləğv edildi.");
+      toast.success(t.blockRemovedToast);
     });
   }
 
@@ -96,15 +98,16 @@ export function BookingCard({ booking }: { booking: BookingCardData }) {
         </CardHeader>
         <CardContent className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">
-            {booking.durationMinutes} dəq{booking.date && <> · {booking.date}</>}
+            {booking.durationMinutes} {t.minutesAbbr}
+            {booking.date && <> · {booking.date}</>}
           </p>
           <ConfirmActionButton
-            label="Blokun ləğvi"
+            label={t.blockRelease}
             variant="outline"
             disabled={isPending}
-            title="Bu vaxtı yenidən açırsınız?"
-            description={`${booking.timeSlot} vaxtı üçün bloklama silinəcək, bu saat yenidən rezervasiya üçün əlçatan olacaq.`}
-            confirmLabel="Bəli, sil"
+            title={t.blockConfirmTitle}
+            description={t.blockConfirmDescTemplate.replace("{time}", booking.timeSlot)}
+            confirmLabel={t.yesDelete}
             onConfirm={handleDeleteBlock}
           />
         </CardContent>
@@ -122,23 +125,26 @@ export function BookingCard({ booking }: { booking: BookingCardData }) {
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         <p className="text-sm text-muted-foreground">
-          {booking.serviceNames.join(", ")} ({booking.durationMinutes} dəq) · {booking.customerPhone}
+          {booking.serviceNames.join(", ")} ({booking.durationMinutes} {t.minutesAbbr}) ·{" "}
+          {booking.customerPhone}
           {booking.date && <> · {booking.date}</>}
         </p>
 
         {booking.status === "PENDING" && (
           <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={handleConfirm} disabled={isPending}>
-              Qəbul et
+              {t.accept}
             </Button>
             <ConfirmActionButton
-              label="Ləğv et"
+              label={t.cancel}
               variant="outline"
               disabled={isPending}
-              title="Rezervasiyanı ləğv edirsiniz?"
-              description={`${booking.customerName} — ${booking.timeSlot} rezervasiyası ləğv ediləcək.`}
-              confirmLabel="Bəli, ləğv et"
-              onConfirm={() => changeStatus("CANCELLED", "Rezervasiya ləğv edildi.")}
+              title={t.cancelConfirmTitle}
+              description={t.cancelConfirmDescTemplate
+                .replace("{name}", booking.customerName)
+                .replace("{time}", booking.timeSlot)}
+              confirmLabel={t.yesCancel}
+              onConfirm={() => changeStatus("CANCELLED", t.cancelledToast)}
             />
           </div>
         )}
@@ -146,49 +152,52 @@ export function BookingCard({ booking }: { booking: BookingCardData }) {
         {booking.status === "CONFIRMED" && (
           <div className="flex flex-wrap gap-2">
             <ConfirmActionButton
-              label="Tamamlandı"
+              label={t.markCompleted}
               disabled={isPending}
-              title="Rezervasiyanı tamamlandı olaraq qeyd edirsiniz?"
-              description={`${booking.customerName} — ${booking.timeSlot} xidməti tamamlanmış sayılacaq.`}
-              confirmLabel="Bəli, tamamlandı"
-              onConfirm={() => changeStatus("COMPLETED", "Rezervasiya tamamlandı olaraq qeyd edildi.")}
+              title={t.completeConfirmTitle}
+              description={t.completeConfirmDescTemplate
+                .replace("{name}", booking.customerName)
+                .replace("{time}", booking.timeSlot)}
+              confirmLabel={t.yesComplete}
+              onConfirm={() => changeStatus("COMPLETED", t.completedToast)}
             />
             <ConfirmActionButton
-              label="Gəlmədi"
+              label={t.markNoShow}
               variant="outline"
               disabled={isPending}
-              title="Müştəri gəlmədi olaraq qeyd edirsiniz?"
-              description={`${booking.customerName} — ${booking.timeSlot} rezervasiyasına müştəri gəlməmiş sayılacaq.`}
-              confirmLabel="Bəli, gəlmədi"
-              onConfirm={() => changeStatus("NO_SHOW", "Müştəri gəlmədi olaraq qeyd edildi.")}
+              title={t.noShowConfirmTitle}
+              description={t.noShowConfirmDescTemplate
+                .replace("{name}", booking.customerName)
+                .replace("{time}", booking.timeSlot)}
+              confirmLabel={t.yesNoShow}
+              onConfirm={() => changeStatus("NO_SHOW", t.noShowToast)}
             />
             <ConfirmActionButton
-              label="Ləğv et"
+              label={t.cancel}
               variant="outline"
               disabled={isPending}
-              title="Rezervasiyanı ləğv edirsiniz?"
-              description={`${booking.customerName} — ${booking.timeSlot} rezervasiyası ləğv ediləcək.`}
-              confirmLabel="Bəli, ləğv et"
-              onConfirm={() => changeStatus("CANCELLED", "Rezervasiya ləğv edildi.")}
+              title={t.cancelConfirmTitle}
+              description={t.cancelConfirmDescTemplate
+                .replace("{name}", booking.customerName)
+                .replace("{time}", booking.timeSlot)}
+              confirmLabel={t.yesCancel}
+              onConfirm={() => changeStatus("CANCELLED", t.cancelledToast)}
             />
           </div>
         )}
 
         {(booking.status === "CANCELLED" || booking.status === "COMPLETED" || booking.status === "NO_SHOW") && (
           <div className="flex items-center justify-between rounded-lg border border-dashed px-3 py-2">
-            <p className="text-xs text-muted-foreground">Səhvən dəyişdiniz? Statusu geri qaytara bilərsiniz.</p>
+            <p className="text-xs text-muted-foreground">{t.revertHint}</p>
             <Button
               size="sm"
               variant="ghost"
               disabled={isPending}
               onClick={() =>
-                changeStatus(
-                  booking.status === "CANCELLED" ? "PENDING" : "CONFIRMED",
-                  "Status geri qaytarıldı."
-                )
+                changeStatus(booking.status === "CANCELLED" ? "PENDING" : "CONFIRMED", t.revertedToast)
               }
             >
-              Geri qaytar
+              {t.revert}
             </Button>
           </div>
         )}

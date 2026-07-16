@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 export function ConfirmActionButton({
   label,
@@ -36,6 +37,7 @@ export function ConfirmActionButton({
   onConfirm: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const { confirmDialog } = useDictionary();
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -52,7 +54,7 @@ export function ConfirmActionButton({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>İmtina</AlertDialogCancel>
+          <AlertDialogCancel>{confirmDialog.cancel}</AlertDialogCancel>
           <AlertDialogAction
             variant={variant === "destructive" ? "destructive" : undefined}
             onClick={() => {

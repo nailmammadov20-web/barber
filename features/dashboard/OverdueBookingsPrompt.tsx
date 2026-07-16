@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { setBookingStatus } from "@/app/dashboard/bookings/actions";
 import { nowMinutesInBaku } from "@/lib/timezone";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 export type OverdueBooking = {
   id: string;
@@ -31,6 +32,7 @@ export function OverdueBookingsPrompt({ bookings }: { bookings: OverdueBooking[]
   const router = useRouter();
   const [dismissed, setDismissed] = useState(false);
   const [isSubmitting, startTransition] = useTransition();
+  const { overdue: t } = useDictionary().dashboard;
 
   const overdue = bookings.filter((booking) => isPast(booking.timeSlot));
 
@@ -44,9 +46,10 @@ export function OverdueBookingsPrompt({ bookings }: { bookings: OverdueBooking[]
         return;
       }
       toast.success(
-        status === "COMPLETED"
-          ? `${booking.customerName} tamamlandı olaraq qeyd edildi.`
-          : `${booking.customerName} gəlmədi olaraq qeyd edildi.`
+        (status === "COMPLETED" ? t.completedToastTemplate : t.noShowToastTemplate).replace(
+          "{name}",
+          booking.customerName
+        )
       );
       router.refresh();
     });
@@ -58,12 +61,9 @@ export function OverdueBookingsPrompt({ bookings }: { bookings: OverdueBooking[]
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlarmClockOff className="size-4 text-primary" />
-            Vaxtı keçmiş rezervasiyalar
+            {t.title}
           </DialogTitle>
-          <DialogDescription>
-            Bu rezervasiyaların saatı artıq keçib, amma hələ nəticə qeyd olunmayıb. Zəhmət olmasa
-            müştəri haqqında münasibətinizi bildirin.
-          </DialogDescription>
+          <DialogDescription>{t.description}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-2.5">
           {overdue.map((booking) => (
@@ -81,7 +81,7 @@ export function OverdueBookingsPrompt({ bookings }: { bookings: OverdueBooking[]
               </div>
               <div className="flex gap-2">
                 <Button size="sm" disabled={isSubmitting} onClick={() => resolve(booking, "COMPLETED")}>
-                  Tamamlandı
+                  {t.completed}
                 </Button>
                 <Button
                   size="sm"
@@ -89,7 +89,7 @@ export function OverdueBookingsPrompt({ bookings }: { bookings: OverdueBooking[]
                   disabled={isSubmitting}
                   onClick={() => resolve(booking, "NO_SHOW")}
                 >
-                  Gəlmədi
+                  {t.noShow}
                 </Button>
               </div>
             </div>

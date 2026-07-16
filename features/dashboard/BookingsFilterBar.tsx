@@ -16,15 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import { formatDateDisplay, formatDateInput } from "@/lib/formatDate";
 import { todayInBaku } from "@/lib/timezone";
-
-const STATUS_OPTIONS: { value: string; label: string }[] = [
-  { value: "all", label: "Hamısı" },
-  { value: "PENDING", label: "Gözləyir" },
-  { value: "CONFIRMED", label: "Təsdiqlənib" },
-  { value: "COMPLETED", label: "Tamamlanıb" },
-  { value: "CANCELLED", label: "Ləğv edilib" },
-  { value: "NO_SHOW", label: "Gəlmədi" },
-];
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 function shiftDate(dateString: string, days: number): string {
   const date = new Date(`${dateString}T00:00:00`);
@@ -40,6 +32,16 @@ export function BookingsFilterBar({ date, status }: { date: string; status: stri
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("q") ?? "");
   const [dateOpen, setDateOpen] = useState(false);
+  const { bookingsFilter: t, bookingStatus } = useDictionary().dashboard;
+
+  const STATUS_OPTIONS: { value: string; label: string }[] = [
+    { value: "all", label: t.all },
+    { value: "PENDING", label: bookingStatus.pending },
+    { value: "CONFIRMED", label: bookingStatus.confirmed },
+    { value: "COMPLETED", label: bookingStatus.completed },
+    { value: "CANCELLED", label: bookingStatus.cancelled },
+    { value: "NO_SHOW", label: bookingStatus.noShow },
+  ];
 
   function updateParams(patch: Record<string, string>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -65,7 +67,7 @@ export function BookingsFilterBar({ date, status }: { date: string; status: stri
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Müştəri adı və ya telefonu ilə axtar"
+            placeholder={t.searchPlaceholder}
             className="h-10 pl-9"
           />
         </div>
@@ -78,12 +80,12 @@ export function BookingsFilterBar({ date, status }: { date: string; status: stri
               setSearch("");
               updateParams({ q: "" });
             }}
-            aria-label="Axtarışı təmizlə"
+            aria-label={t.clearSearch}
           >
             <X className="size-4" />
           </Button>
         )}
-        <Button type="submit">Axtar</Button>
+        <Button type="submit">{t.search}</Button>
       </form>
 
       <div className="flex flex-wrap gap-2">
@@ -111,7 +113,7 @@ export function BookingsFilterBar({ date, status }: { date: string; status: stri
             variant="outline"
             size="icon"
             onClick={() => updateParams({ date: shiftDate(date, -1) })}
-            aria-label="Əvvəlki gün"
+            aria-label={t.prevDay}
           >
             <ChevronLeft className="size-4" />
           </Button>
@@ -129,12 +131,12 @@ export function BookingsFilterBar({ date, status }: { date: string; status: stri
             variant="outline"
             size="icon"
             onClick={() => updateParams({ date: shiftDate(date, 1) })}
-            aria-label="Sonrakı gün"
+            aria-label={t.nextDay}
           >
             <ChevronRight className="size-4" />
           </Button>
           <Button type="button" variant="ghost" size="sm" onClick={() => updateParams({ date: todayInBaku() })}>
-            Bugün
+            {t.today}
           </Button>
         </div>
       )}
@@ -146,21 +148,21 @@ export function BookingsFilterBar({ date, status }: { date: string; status: stri
       */}
       <Dialog open={dateOpen} onOpenChange={setDateOpen}>
         <DialogHeader className="sr-only">
-          <DialogTitle>Tarix seçin</DialogTitle>
-          <DialogDescription>Baxmaq istədiyiniz tarixi seçin.</DialogDescription>
+          <DialogTitle>{t.selectDate}</DialogTitle>
+          <DialogDescription>{t.selectDateDescription}</DialogDescription>
         </DialogHeader>
         <DialogContent
           showCloseButton={false}
           className="inset-x-0 bottom-0 top-auto left-0 w-full max-w-full translate-x-0 translate-y-0 gap-0 rounded-t-2xl rounded-b-none p-0 sm:inset-auto sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:w-auto sm:max-w-none sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl"
         >
           <div className="flex items-center justify-between border-b px-4 py-3">
-            <p className="text-sm font-medium">Tarix seçin</p>
+            <p className="text-sm font-medium">{t.selectDate}</p>
             <Button
               type="button"
               variant="ghost"
               size="icon-sm"
               onClick={() => setDateOpen(false)}
-              aria-label="Bağla"
+              aria-label={t.close}
             >
               <X className="size-4" />
             </Button>

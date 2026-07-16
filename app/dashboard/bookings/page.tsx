@@ -7,6 +7,8 @@ import { BookingsFilterBar } from "@/features/dashboard/BookingsFilterBar";
 import { BookingsList } from "@/features/dashboard/BookingsList";
 import { BlockTimeDialog } from "@/features/dashboard/BlockTimeDialog";
 import type { Prisma } from "@/lib/generated/prisma/client";
+import { getLocale } from "@/lib/i18n/getLocale";
+import { getDictionary } from "@/lib/i18n/getDictionary";
 
 const VALID_STATUSES = ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED", "NO_SHOW"] as const;
 
@@ -17,6 +19,8 @@ export default async function DashboardBookingsPage({
 }) {
   const session = await getCurrentBarber();
   if (!session) redirect("/login");
+
+  const { bookingsPage } = getDictionary(await getLocale()).dashboard;
 
   const params = await searchParams;
   const date = params.date && /^\d{4}-\d{2}-\d{2}$/.test(params.date) ? params.date : todayInBaku();
@@ -45,8 +49,8 @@ export default async function DashboardBookingsPage({
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Rezervasiyalar</h1>
-          <p className="text-sm text-muted-foreground">Rezervasiyalarınızı izləyin və təsdiqləyin.</p>
+          <h1 className="text-2xl font-semibold">{bookingsPage.title}</h1>
+          <p className="text-sm text-muted-foreground">{bookingsPage.subtitle}</p>
         </div>
         <BlockTimeDialog defaultDate={date} />
       </div>

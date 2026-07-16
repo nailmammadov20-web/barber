@@ -7,12 +7,16 @@ import { Button } from "@/components/ui/button";
 import { DashboardNav } from "@/features/dashboard/DashboardNav";
 import { PresencePing } from "@/features/dashboard/PresencePing";
 import { NotificationRequiredBanner } from "@/features/dashboard/NotificationRequiredBanner";
+import { getLocale } from "@/lib/i18n/getLocale";
+import { getDictionary } from "@/lib/i18n/getDictionary";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getCurrentBarber();
   if (!session) {
     redirect("/login");
   }
+
+  const { nav } = getDictionary(await getLocale()).dashboard;
 
   return (
     <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pt-16 pb-20 md:flex-row md:pt-8 md:pb-8">
@@ -47,7 +51,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               variant="ghost"
               size="icon-sm"
               className="text-destructive hover:text-destructive"
-              aria-label="Çıxış"
+              aria-label={nav.logout}
             >
               <LogOut className="size-4" />
             </Button>
@@ -63,7 +67,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             className="w-full justify-start gap-2.5 text-destructive hover:text-destructive"
           >
             <LogOut className="size-4" />
-            Çıxış
+            {nav.logout}
           </Button>
         </form>
       </aside>

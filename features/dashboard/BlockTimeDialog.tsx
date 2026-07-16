@@ -28,6 +28,7 @@ import { manualBlockSchema, type ManualBlockInput } from "@/lib/validation/manua
 import { createManualBlock, fetchOwnAvailableSlots } from "@/app/dashboard/bookings/actions";
 import { SlotPicker } from "@/features/public/SlotPicker";
 import { cn } from "@/lib/utils";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 const DURATION_PRESETS = [30, 60, 90, 120];
 
@@ -40,6 +41,7 @@ export function BlockTimeDialog({ defaultDate }: { defaultDate: string }) {
   const [isSubmitting, startTransition] = useTransition();
   const [slots, setSlots] = useState<string[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
+  const { blockTime: t } = useDictionary().dashboard;
 
   const form = useForm<ManualBlockInput>({
     resolver: zodResolver(manualBlockSchema),
@@ -78,7 +80,7 @@ export function BlockTimeDialog({ defaultDate }: { defaultDate: string }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Vaxt bağlandı.");
+      toast.success(t.successToast);
       form.reset(defaultValues(defaultDate));
       setOpen(false);
     });
@@ -96,13 +98,13 @@ export function BlockTimeDialog({ defaultDate }: { defaultDate: string }) {
         render={
           <Button type="button" variant="outline" size="sm">
             <Ban className="size-4" />
-            Vaxtı bağla
+            {t.trigger}
           </Button>
         }
       />
       <DialogContent className="max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Vaxtı bağla</DialogTitle>
+          <DialogTitle>{t.dialogTitle}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -111,7 +113,7 @@ export function BlockTimeDialog({ defaultDate }: { defaultDate: string }) {
               name="date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tarix</FormLabel>
+                  <FormLabel>{t.dateLabel}</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>
@@ -125,7 +127,7 @@ export function BlockTimeDialog({ defaultDate }: { defaultDate: string }) {
               name="durationMinutes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Müddət</FormLabel>
+                  <FormLabel>{t.durationLabel}</FormLabel>
                   <div className="flex flex-wrap gap-2">
                     {DURATION_PRESETS.map((preset) => (
                       <button
@@ -139,7 +141,7 @@ export function BlockTimeDialog({ defaultDate }: { defaultDate: string }) {
                             : "border-input bg-background hover:bg-muted"
                         )}
                       >
-                        {preset} dəq
+                        {preset} {t.minutesAbbr}
                       </button>
                     ))}
                   </div>
@@ -153,14 +155,14 @@ export function BlockTimeDialog({ defaultDate }: { defaultDate: string }) {
               name="timeSlot"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Saat</FormLabel>
+                  <FormLabel>{t.timeLabel}</FormLabel>
                   <FormControl>
                     <SlotPicker
                       slots={slots}
                       value={field.value}
                       onChange={field.onChange}
                       loading={slotsLoading}
-                      emptyMessage="Bu tarixdə/müddətdə boş saat yoxdur."
+                      emptyMessage={t.noSlots}
                     />
                   </FormControl>
                   <FormMessage />
@@ -173,9 +175,9 @@ export function BlockTimeDialog({ defaultDate }: { defaultDate: string }) {
               name="note"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Qeyd (istəyə bağlı)</FormLabel>
+                  <FormLabel>{t.noteLabel}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Telefonla razılaşdı, s. hallar üçün" {...field} />
+                    <Input placeholder={t.notePlaceholder} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -184,7 +186,7 @@ export function BlockTimeDialog({ defaultDate }: { defaultDate: string }) {
 
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting || !timeSlot}>
-                {isSubmitting ? "Bağlanılır..." : "Vaxtı bağla"}
+                {isSubmitting ? t.submitting : t.submit}
               </Button>
             </DialogFooter>
           </form>

@@ -10,14 +10,7 @@ import {
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const NAV_ITEMS = [
-  { href: "/dashboard", label: "Ümumi baxış", shortLabel: "Baxış", icon: LayoutDashboard },
-  { href: "/dashboard/bookings", label: "Rezervasiyalar", shortLabel: "Rezerv", icon: CalendarCheck },
-  { href: "/dashboard/services", label: "Xidmətlər", shortLabel: "Xidmət", icon: Scissors },
-  { href: "/dashboard/hours", label: "İş saatları", shortLabel: "Saatlar", icon: Clock },
-  { href: "/dashboard/settings", label: "Tənzimləmələr", shortLabel: "Ayarlar", icon: Settings },
-];
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 function isItemActive(pathname: string, href: string): boolean {
   return href === "/dashboard" ? pathname === href : pathname.startsWith(href);
@@ -25,6 +18,15 @@ function isItemActive(pathname: string, href: string): boolean {
 
 export function DashboardNav() {
   const pathname = usePathname();
+  const { nav } = useDictionary().dashboard;
+
+  const NAV_ITEMS = [
+    { href: "/dashboard", label: nav.overview, shortLabel: nav.overviewShort, icon: LayoutDashboard },
+    { href: "/dashboard/bookings", label: nav.bookings, shortLabel: nav.bookingsShort, icon: CalendarCheck },
+    { href: "/dashboard/services", label: nav.services, shortLabel: nav.servicesShort, icon: Scissors },
+    { href: "/dashboard/hours", label: nav.hours, shortLabel: nav.hoursShort, icon: Clock },
+    { href: "/dashboard/settings", label: nav.settings, shortLabel: nav.settingsShort, icon: Settings },
+  ];
 
   return (
     <>

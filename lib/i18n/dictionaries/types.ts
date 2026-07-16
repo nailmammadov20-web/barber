@@ -86,4 +86,107 @@ export type DictionaryShape = {
     viewsSuffix: string;
     viewingNowSuffix: string;
   };
+  confirmDialog: {
+    cancel: string;
+  };
+  dashboard: {
+    nav: {
+      overview: string;
+      overviewShort: string;
+      bookings: string;
+      bookingsShort: string;
+      services: string;
+      servicesShort: string;
+      hours: string;
+      hoursShort: string;
+      settings: string;
+      settingsShort: string;
+      logout: string;
+    };
+    overview: {
+      title: string;
+      greetingTemplate: string;
+      statToday: string;
+      statPending: string;
+      statCompletedMonth: string;
+      statRevenueMonth: string;
+      todaysBookings: string;
+    };
+    overdue: {
+      title: string;
+      description: string;
+      completed: string;
+      noShow: string;
+      completedToastTemplate: string;
+      noShowToastTemplate: string;
+    };
+    bookingStatus: {
+      pending: string;
+      confirmed: string;
+      cancelled: string;
+      completed: string;
+      noShow: string;
+    };
+    bookingCard: {
+      accept: string;
+      cancel: string;
+      markCompleted: string;
+      markNoShow: string;
+      revert: string;
+      revertHint: string;
+      blockRelease: string;
+      confirmedToast: string;
+      cancelledToast: string;
+      completedToast: string;
+      noShowToast: string;
+      revertedToast: string;
+      blockRemovedToast: string;
+      cancelConfirmTitle: string;
+      cancelConfirmDescTemplate: string;
+      completeConfirmTitle: string;
+      completeConfirmDescTemplate: string;
+      noShowConfirmTitle: string;
+      noShowConfirmDescTemplate: string;
+      blockConfirmTitle: string;
+      blockConfirmDescTemplate: string;
+      yesCancel: string;
+      yesComplete: string;
+      yesNoShow: string;
+      yesDelete: string;
+      minutesAbbr: string;
+    };
+    bookingsList: {
+      empty: string;
+    };
+    bookingsFilter: {
+      all: string;
+      searchPlaceholder: string;
+      clearSearch: string;
+      search: string;
+      prevDay: string;
+      nextDay: string;
+      today: string;
+      selectDate: string;
+      selectDateDescription: string;
+      close: string;
+    };
+    bookingsPage: {
+      title: string;
+      subtitle: string;
+    };
+    blockTime: {
+      trigger: string;
+      dialogTitle: string;
+      dateLabel: string;
+      durationLabel: string;
+      minutesAbbr: string;
+      timeLabel: string;
+      noSlots: string;
+      noteLabel: string;
+      notePlaceholder: string;
+      submit: string;
+      submitting: string;
+      successToast: string;
+    };
+  };
 };
