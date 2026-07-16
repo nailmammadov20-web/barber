@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ConfirmActionButton } from "@/features/dashboard/ConfirmActionButton";
 import { EditServiceDialog } from "@/features/dashboard/EditServiceDialog";
 import { toggleServiceActive, deleteService } from "@/app/dashboard/services/actions";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 export type ServiceItem = {
   id: string;
@@ -21,6 +22,7 @@ export type ServiceItem = {
 
 export function ServiceList({ services }: { services: ServiceItem[] }) {
   const [isPending, startTransition] = useTransition();
+  const { common } = useDictionary();
 
   function handleToggle(id: string) {
     startTransition(async () => {
@@ -54,7 +56,7 @@ export function ServiceList({ services }: { services: ServiceItem[] }) {
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground">
-                {service.durationMinutes} dəq · {service.price} AZN
+                {service.durationMinutes} dəq · {service.price} {common.currency}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-1.5">

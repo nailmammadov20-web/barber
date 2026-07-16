@@ -27,10 +27,12 @@ import {
 import { serviceSchema, type ServiceInput } from "@/lib/validation/service";
 import { updateService } from "@/app/dashboard/services/actions";
 import type { ServiceItem } from "@/features/dashboard/ServiceList";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 export function EditServiceDialog({ service }: { service: ServiceItem }) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, startTransition] = useTransition();
+  const { common } = useDictionary();
 
   const form = useForm<ServiceInput>({
     resolver: zodResolver(serviceSchema),
@@ -110,7 +112,7 @@ export function EditServiceDialog({ service }: { service: ServiceItem }) {
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Qiymət (AZN)</FormLabel>
+                    <FormLabel>Qiymət ({common.currency})</FormLabel>
                     <FormControl>
                       <Input
                         type="number"

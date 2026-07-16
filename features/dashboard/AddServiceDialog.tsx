@@ -22,6 +22,7 @@ import { serviceSchema } from "@/lib/validation/service";
 import { SERVICE_TEMPLATES } from "@/lib/serviceTemplates";
 import { createServices } from "@/app/dashboard/services/actions";
 import { cn } from "@/lib/utils";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 const formSchema = z.object({ items: z.array(serviceSchema) });
 type FormValues = z.infer<typeof formSchema>;
@@ -36,6 +37,7 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
   const [query, setQuery] = useState("");
   const [customName, setCustomName] = useState("");
   const [isSubmitting, startTransition] = useTransition();
+  const { common } = useDictionary();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -155,7 +157,7 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
                         <span
                           className={cn("text-xs", checked ? "text-primary-foreground/80" : "text-muted-foreground")}
                         >
-                          {template.durationMinutes} dəq · {template.price} AZN
+                          {template.durationMinutes} dəq · {template.price} {common.currency}
                         </span>
                       </button>
                     );
@@ -221,7 +223,7 @@ export function AddServiceDialog({ existingNames = [] }: { existingNames?: strin
                         {...form.register(`items.${index}.price`, { valueAsNumber: true })}
                         className="h-9 w-16 min-w-0"
                       />
-                      <span className="shrink-0 text-xs text-muted-foreground">AZN</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">{common.currency}</span>
                       <Button
                         type="button"
                         variant="ghost"

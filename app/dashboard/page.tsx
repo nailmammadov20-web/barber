@@ -11,12 +11,16 @@ import { SetupChecklist } from "@/features/dashboard/SetupChecklist";
 import { BookingsList } from "@/features/dashboard/BookingsList";
 import { OverdueBookingsPrompt } from "@/features/dashboard/OverdueBookingsPrompt";
 import { StatusPromoModal } from "@/features/dashboard/StatusPromoModal";
+import { getLocale } from "@/lib/i18n/getLocale";
+import { getDictionary } from "@/lib/i18n/getDictionary";
 
 const NEW_WITHIN_DAYS = 7;
 
 export default async function DashboardOverviewPage() {
   const session = await getCurrentBarber();
   if (!session) redirect("/login");
+
+  const { common } = getDictionary(await getLocale());
 
   const barberId = session.barber.id;
   const today = toDateOnly(todayInBaku());
@@ -54,7 +58,7 @@ export default async function DashboardOverviewPage() {
     { label: "Bugünkü rezervasiyalar", value: todayBookings.length, icon: CalendarClock },
     { label: "Gözləyən rezervasiyalar", value: pendingCount, icon: Hourglass },
     { label: "Bu ay tamamlanan", value: completedThisMonth, icon: CircleCheckBig },
-    { label: "Bu ay gəlir", value: `${monthlyRevenue} AZN`, icon: Wallet },
+    { label: "Bu ay gəlir", value: `${monthlyRevenue} ${common.currency}`, icon: Wallet },
   ];
 
   return (
