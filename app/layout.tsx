@@ -31,6 +31,18 @@ export const metadata: Metadata = {
     ],
     apple: "/favicon/apple-touch-icon.png",
   },
+  appleWebApp: {
+    capable: true,
+    title: "BarberHub",
+    statusBarStyle: "black-translucent",
+  },
+  other: {
+    // Older iOS Safari (pre-17.4) ignores the manifest's display:standalone
+    // and only goes chromeless on "Add to Home Screen" when this legacy,
+    // non-namespaced tag is present — appleWebApp above only emits the
+    // newer `mobile-web-app-capable` tag.
+    "apple-mobile-web-app-capable": "yes",
+  },
 };
 
 export default async function RootLayout({
