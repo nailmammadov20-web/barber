@@ -40,13 +40,13 @@ export default function Home() {
             Bərbərlər üçün rezervasiya platforması
           </span>
           <h1 className="text-4xl font-semibold tracking-tight sm:text-6xl">
-            Öz rezervasiya səhifəniz.
+            Rezervasiya qəbul etmək heç vaxt
             <br />
-            Bir dəqiqəyə hazır.
+            bu qədər asan olmayıb.
           </h1>
           <p className="max-w-xl text-base text-white/80 sm:text-lg">
-            BarberHub hər bərbərə öz xidmətləri, iş saatları və müştəriləri olan tamamilə
-            müstəqil bir hesab verir. Heç bir bərbər digərini görmür.
+            Onlayn rezervasiya, iş qrafiki və müştəri idarəetməsi. Bütün biznesiniz bir
+            platformada.
           </p>
           <div className="mt-2 flex w-full max-w-md flex-col gap-4 sm:flex-row">
             <Button
