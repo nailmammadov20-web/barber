@@ -4,11 +4,15 @@ import { getCurrentBarber } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { toDateOnly } from "@/lib/slots";
 import { todayInBaku } from "@/lib/timezone";
+import { isNewSince } from "@/lib/presence";
 import { Card, CardContent } from "@/components/ui/card";
 import { PublicLinkCard } from "@/features/dashboard/PublicLinkCard";
 import { SetupChecklist } from "@/features/dashboard/SetupChecklist";
 import { BookingsList } from "@/features/dashboard/BookingsList";
 import { OverdueBookingsPrompt } from "@/features/dashboard/OverdueBookingsPrompt";
+import { StatusPromoModal } from "@/features/dashboard/StatusPromoModal";
+
+const NEW_WITHIN_DAYS = 7;
 
 export default async function DashboardOverviewPage() {
   const session = await getCurrentBarber();
@@ -77,6 +81,16 @@ export default async function DashboardOverviewPage() {
         photoUrl={session.barber.photoUrl}
         city={session.barber.city}
         bio={session.barber.bio}
+      />
+
+      <StatusPromoModal
+        barberId={session.barber.id}
+        isNew={isNewSince(session.barber.createdAt, NEW_WITHIN_DAYS)}
+        fullName={session.barber.fullName}
+        photoUrl={session.barber.photoUrl}
+        city={session.barber.city}
+        bio={session.barber.bio}
+        path={`/barber/${session.barber.slug}`}
       />
 
       <SetupChecklist hasServices={servicesCount > 0} hasWorkingHours={workingHoursCount > 0} />
