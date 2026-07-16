@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ShareStatusButton } from "@/features/shared/ShareStatusButton";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 const SHOWN_KEY_PREFIX = "barberhub-status-promo-";
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -36,6 +37,7 @@ export function StatusPromoModal({
   path: string;
 }) {
   const [open, setOpen] = useState(false);
+  const { statusPromo: t } = useDictionary().dashboard;
 
   useEffect(() => {
     if (!isNew) return;
@@ -63,16 +65,13 @@ export function StatusPromoModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Megaphone className="size-5 text-primary" />
-            Statusunuzda paylaşın, ilk müştərilərinizi qazanın
+            {t.title}
           </DialogTitle>
-          <DialogDescription>
-            Bir kliklə rezervasiya linkinizlə hazır bir şəkil yaradırıq — WhatsApp və ya
-            Instagram statusunuzda paylaşın ki, tanıdıqlarınız birbaşa sizdən rezervasiya etsin.
-          </DialogDescription>
+          <DialogDescription>{t.description}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="sm:justify-between">
           <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
-            Sonra
+            {t.later}
           </Button>
           <ShareStatusButton
             fullName={fullName}
@@ -80,7 +79,7 @@ export function StatusPromoModal({
             city={city}
             path={path}
             bio={bio}
-            label="İndi paylaş"
+            label={t.shareNow}
           />
         </DialogFooter>
       </DialogContent>

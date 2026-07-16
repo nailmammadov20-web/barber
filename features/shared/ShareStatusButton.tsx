@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Loader2, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 const WIDTH = 1080;
 const HEIGHT = 1920;
@@ -101,7 +102,8 @@ async function generateStatusImage(
   photoUrl: string | null,
   city: string,
   url: string,
-  bio: string | null
+  bio: string | null,
+  ctaText: string
 ): Promise<Blob> {
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;
@@ -195,7 +197,7 @@ async function generateStatusImage(
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "700 56px system-ui, sans-serif";
-  ctx.fillText("Rezervasiya et", WIDTH / 2, ctaY + 76);
+  ctx.fillText(ctaText, WIDTH / 2, ctaY + 76);
 
   ctx.fillStyle = "rgba(255,255,255,0.9)";
   if (trimmedBio) {
@@ -226,7 +228,7 @@ export function ShareStatusButton({
   city,
   path,
   bio,
-  label = "Statusda paylaş",
+  label,
 }: {
   fullName: string;
   photoUrl: string | null;
@@ -236,12 +238,13 @@ export function ShareStatusButton({
   label?: string;
 }) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const { shareStatus: t } = useDictionary();
 
   async function handleShare() {
     setIsGenerating(true);
     try {
       const url = `${window.location.origin}${path}`;
-      const blob = await generateStatusImage(fullName, photoUrl, city, url, bio ?? null);
+      const blob = await generateStatusImage(fullName, photoUrl, city, url, bio ?? null, t.imageCta);
       const file = new File([blob], "rezervasiya.png", { type: "image/png" });
       const shareText = `${fullName} — rezervasiya edin: ${url}`;
 
@@ -255,11 +258,11 @@ export function ShareStatusButton({
         link.download = "rezervasiya.png";
         link.click();
         URL.revokeObjectURL(link.href);
-        toast.success("Şəkil endirildi. WhatsApp/Instagram statusunuzda paylaşa bilərsiniz.");
+        toast.success(t.downloadedToast);
       }
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
-      toast.error("Şəkil hazırlana bilmədi, yenidən cəhd edin.");
+      toast.error(t.failedToast);
     } finally {
       setIsGenerating(false);
     }
@@ -268,7 +271,7 @@ export function ShareStatusButton({
   return (
     <Button type="button" variant="outline" size="sm" onClick={handleShare} disabled={isGenerating}>
       {isGenerating ? <Loader2 className="size-4 animate-spin" /> : <Share2 className="size-4" />}
-      {label}
+      {label ?? t.defaultLabel}
     </Button>
   );
 }

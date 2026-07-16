@@ -9,6 +9,8 @@ import { AvatarUpload } from "@/features/dashboard/AvatarUpload";
 import { CoverUpload } from "@/features/dashboard/CoverUpload";
 import { LogoUpload } from "@/features/dashboard/LogoUpload";
 import { PushNotificationCard } from "@/features/dashboard/PushNotificationCard";
+import { getLocale } from "@/lib/i18n/getLocale";
+import { getDictionary } from "@/lib/i18n/getDictionary";
 
 const NEW_WITHIN_DAYS = 7;
 
@@ -16,20 +18,21 @@ export default async function DashboardSettingsPage() {
   const session = await getCurrentBarber();
   if (!session) redirect("/login");
 
+  const { settingsPage: t } = getDictionary(await getLocale()).dashboard;
   const servicesCount = await prisma.service.count({ where: { barberId: session.barber.id } });
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold">Tənzimləmələr</h1>
-        <p className="text-sm text-muted-foreground">İctimai profilinizi yeniləyin.</p>
+        <h1 className="text-2xl font-semibold">{t.title}</h1>
+        <p className="text-sm text-muted-foreground">{t.subtitle}</p>
       </div>
 
       <Card className="max-w-2xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <ImageIcon className="size-4 text-primary" />
-            Profil şəkli
+            {t.avatarCardTitle}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -41,7 +44,7 @@ export default async function DashboardSettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <PanelTop className="size-4 text-primary" />
-            Banner
+            {t.coverCardTitle}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -53,7 +56,7 @@ export default async function DashboardSettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Store className="size-4 text-primary" />
-            Salon loqosu
+            {t.logoCardTitle}
           </CardTitle>
         </CardHeader>
         <CardContent>

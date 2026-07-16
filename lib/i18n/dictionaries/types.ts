@@ -89,6 +89,12 @@ export type DictionaryShape = {
   confirmDialog: {
     cancel: string;
   };
+  shareStatus: {
+    defaultLabel: string;
+    downloadedToast: string;
+    failedToast: string;
+    imageCta: string;
+  };
   dashboard: {
     nav: {
       overview: string;
@@ -238,6 +244,101 @@ export type DictionaryShape = {
       save: string;
       saving: string;
       savedToast: string;
+    };
+    publicLink: {
+      title: string;
+      copy: string;
+      copiedToast: string;
+      copyFailedToast: string;
+      view: string;
+    };
+    statusPromo: {
+      title: string;
+      description: string;
+      later: string;
+      shareNow: string;
+    };
+    setupChecklist: {
+      title: string;
+      addServiceItem: string;
+      addServiceButton: string;
+      setHoursItem: string;
+      setHoursButton: string;
+    };
+    upload: {
+      invalidType: string;
+      tooLarge: string;
+      avatarUpdated: string;
+      avatarRemoved: string;
+      avatarUploadBtn: string;
+      removeBtn: string;
+      avatarHint: string;
+      coverUpdated: string;
+      coverReset: string;
+      coverUploadBtn: string;
+      coverResetBtn: string;
+      coverHint: string;
+      logoUpdated: string;
+      logoRemoved: string;
+      logoUploadBtn: string;
+      logoHint: string;
+    };
+    push: {
+      cardTitle: string;
+      unsupported: string;
+      subscribedHint: string;
+      unsubscribedHint: string;
+      enable: string;
+      disable: string;
+      permissionDenied: string;
+      enabledToast: string;
+      enableFailedToast: string;
+      disabledToast: string;
+      disableFailedToast: string;
+      bannerText: string;
+      bannerButton: string;
+    };
+    settingsPage: {
+      title: string;
+      subtitle: string;
+      avatarCardTitle: string;
+      coverCardTitle: string;
+      logoCardTitle: string;
+      personalCardTitle: string;
+      fullName: string;
+      phone: string;
+      salonName: string;
+      salonNamePlaceholder: string;
+      salonNameHint: string;
+      locationCardTitle: string;
+      useCurrentLocation: string;
+      locatingInProgress: string;
+      city: string;
+      address: string;
+      addressPlaceholder: string;
+      addressHint: string;
+      addressTooltip: string;
+      socialCardTitle: string;
+      instagram: string;
+      tiktok: string;
+      youtube: string;
+      facebook: string;
+      liveLabel: string;
+      liveOptionNone: string;
+      liveHint: string;
+      aboutCardTitle: string;
+      bioPlaceholder: string;
+      save: string;
+      saving: string;
+      savedToast: string;
+      savedWithServiceNudgeDescription: string;
+      addServiceCta: string;
+      locationNotFoundToast: string;
+      locationFilledToast: string;
+      locationErrorToast: string;
+      geoUnsupportedToast: string;
+      geoPermissionDeniedToast: string;
+      geoFailedToast: string;
     };
   };
 };

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Camera, Loader2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { removeCoverPhoto, uploadCoverPhoto } from "@/app/dashboard/settings/actions";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/png"];
@@ -14,16 +15,17 @@ export function CoverUpload({ coverUrl }: { coverUrl: string | null }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const { upload: t } = useDictionary().dashboard;
 
   function processFile(file: File | undefined) {
     if (!file) return;
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      toast.error("Yalnız JPEG və ya PNG formatı qəbul olunur.");
+      toast.error(t.invalidType);
       return;
     }
     if (file.size > MAX_BYTES) {
-      toast.error("Şəkil 2MB-dan böyük ola bilməz.");
+      toast.error(t.tooLarge);
       return;
     }
 
@@ -41,7 +43,7 @@ export function CoverUpload({ coverUrl }: { coverUrl: string | null }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Banner yeniləndi.");
+      toast.success(t.coverUpdated);
     });
   }
 
@@ -63,7 +65,7 @@ export function CoverUpload({ coverUrl }: { coverUrl: string | null }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Banner standart şəklə qaytarıldı.");
+      toast.success(t.coverReset);
     });
   }
 
@@ -106,18 +108,16 @@ export function CoverUpload({ coverUrl }: { coverUrl: string | null }) {
           onClick={() => inputRef.current?.click()}
         >
           <Camera className="size-4" />
-          Banner yüklə
+          {t.coverUploadBtn}
         </Button>
         {coverUrl && (
           <Button type="button" size="sm" variant="ghost" disabled={isPending} onClick={handleReset}>
             <RotateCcw className="size-4" />
-            Standart bannerə qaytar
+            {t.coverResetBtn}
           </Button>
         )}
       </div>
-      <p className="text-xs text-muted-foreground">
-        JPEG və ya PNG, maksimum 2MB. Tövsiyə olunan en/hündürlük nisbəti geniş (məs. 1600×400px).
-      </p>
+      <p className="text-xs text-muted-foreground">{t.coverHint}</p>
     </div>
   );
 }

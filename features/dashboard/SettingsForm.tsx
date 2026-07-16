@@ -30,14 +30,7 @@ import {
 import { FacebookIcon, InstagramIcon, TiktokIcon, YoutubeIcon } from "@/components/icons/social";
 import { profileSchema, type ProfileInput } from "@/lib/validation/profile";
 import { updateProfile } from "@/app/dashboard/settings/actions";
-
-const LIVE_OPTIONS = [
-  { value: "", label: "Yox, canlı yayımda deyiləm" },
-  { value: "INSTAGRAM", label: "Instagram" },
-  { value: "TIKTOK", label: "TikTok" },
-  { value: "YOUTUBE", label: "YouTube" },
-  { value: "FACEBOOK", label: "Facebook" },
-];
+import { useDictionary, useLocale } from "@/lib/i18n/I18nProvider";
 
 const ADDRESS_TIP_KEY_PREFIX = "barberhub-address-tip-";
 const ADDRESS_TIP_MAX_SHOWS = 2;
@@ -59,6 +52,16 @@ export function SettingsForm({
   const [isSubmitting, startTransition] = useTransition();
   const [isLocating, setIsLocating] = useState(false);
   const [addressTipOpen, setAddressTipOpen] = useState(false);
+  const { settingsPage: t } = useDictionary().dashboard;
+  const locale = useLocale();
+
+  const LIVE_OPTIONS = [
+    { value: "", label: t.liveOptionNone },
+    { value: "INSTAGRAM", label: "Instagram" },
+    { value: "TIKTOK", label: "TikTok" },
+    { value: "YOUTUBE", label: "YouTube" },
+    { value: "FACEBOOK", label: "Facebook" },
+  ];
 
   const form = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
@@ -88,7 +91,7 @@ export function SettingsForm({
 
   function handleUseCurrentLocation() {
     if (!navigator.geolocation) {
-      toast.error("Brauzeriniz məkan xidmətini dəstəkləmir.");
+      toast.error(t.geoUnsupportedToast);
       return;
     }
 
@@ -98,7 +101,7 @@ export function SettingsForm({
         try {
           const { latitude, longitude } = position.coords;
           const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&addressdetails=1&accept-language=az`
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&addressdetails=1&accept-language=${locale}`
           );
           if (!response.ok) throw new Error("reverse-geocode-failed");
 
@@ -111,23 +114,19 @@ export function SettingsForm({
           if (city) form.setValue("city", city, { shouldDirty: true });
 
           if (!street && !city) {
-            toast.error("Ünvan tapılmadı, xanaları əl ilə doldurun.");
+            toast.error(t.locationNotFoundToast);
           } else {
-            toast.success("Məkan məlumatları dolduruldu. Yoxlayıb yadda saxlayın.");
+            toast.success(t.locationFilledToast);
           }
         } catch {
-          toast.error("Ünvan müəyyən edilə bilmədi. Xanaları əl ilə doldurun.");
+          toast.error(t.locationErrorToast);
         } finally {
           setIsLocating(false);
         }
       },
       (error) => {
         setIsLocating(false);
-        toast.error(
-          error.code === error.PERMISSION_DENIED
-            ? "Məkan icazəsi verilmədi."
-            : "Məkan müəyyən edilə bilmədi."
-        );
+        toast.error(error.code === error.PERMISSION_DENIED ? t.geoPermissionDeniedToast : t.geoFailedToast);
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -142,14 +141,14 @@ export function SettingsForm({
       }
 
       if (hasServices) {
-        toast.success("Profil yeniləndi.");
+        toast.success(t.savedToast);
         return;
       }
 
-      toast.success("Profil yeniləndi.", {
-        description: "İndi xidmətlərinizi əlavə edin ki, müştərilər rezervasiya edə bilsin.",
+      toast.success(t.savedToast, {
+        description: t.savedWithServiceNudgeDescription,
         action: {
-          label: "Xidmət əlavə et",
+          label: t.addServiceCta,
           onClick: () => router.push("/dashboard/services"),
         },
       });
@@ -163,7 +162,7 @@ export function SettingsForm({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <User className="size-4 text-primary" />
-              Şəxsi məlumatlar
+              {t.personalCardTitle}
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
@@ -172,7 +171,7 @@ export function SettingsForm({
               name="fullName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ad Soyad</FormLabel>
+                  <FormLabel>{t.fullName}</FormLabel>
                   <FormControl>
                     <Input className="h-11 rounded-lg" {...field} />
                   </FormControl>
@@ -185,7 +184,7 @@ export function SettingsForm({
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Telefon</FormLabel>
+                  <FormLabel>{t.phone}</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Phone className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -201,20 +200,18 @@ export function SettingsForm({
               name="salonName"
               render={({ field }) => (
                 <FormItem className="sm:col-span-2">
-                  <FormLabel>Salon/bərbərxana adı (istəyə bağlı)</FormLabel>
+                  <FormLabel>{t.salonName}</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Store className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         className="h-11 rounded-lg pl-9"
-                        placeholder="məs. Hezi Aslanov Bərbərxanası"
+                        placeholder={t.salonNamePlaceholder}
                         {...field}
                       />
                     </div>
                   </FormControl>
-                  <p className="text-xs text-muted-foreground">
-                    Şəxsi adınızla yanaşı işlədiyiniz salonun adı da ictimai səhifənizdə göstərilə bilər.
-                  </p>
+                  <p className="text-xs text-muted-foreground">{t.salonNameHint}</p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -226,7 +223,7 @@ export function SettingsForm({
           <CardHeader className="flex flex-wrap items-center justify-between gap-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <MapPin className="size-4 text-primary" />
-              Məkan
+              {t.locationCardTitle}
             </CardTitle>
             <Button
               type="button"
@@ -237,7 +234,7 @@ export function SettingsForm({
               onClick={handleUseCurrentLocation}
             >
               <LocateFixed className="size-4" />
-              {isLocating ? "Müəyyən edilir..." : "Cari məkanımı istifadə et"}
+              {isLocating ? t.locatingInProgress : t.useCurrentLocation}
             </Button>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
@@ -246,7 +243,7 @@ export function SettingsForm({
               name="city"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Şəhər</FormLabel>
+                  <FormLabel>{t.city}</FormLabel>
                   <FormControl>
                     <Input className="h-11 rounded-lg" {...field} />
                   </FormControl>
@@ -260,30 +257,26 @@ export function SettingsForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center gap-1.5">
-                    Ünvan
+                    {t.address}
                     <Tooltip open={addressTipOpen} onOpenChange={setAddressTipOpen}>
                       <TooltipTrigger
                         render={
                           <button
                             type="button"
                             className="text-muted-foreground hover:text-foreground"
-                            aria-label="Ünvan üçün kömək"
+                            aria-label={t.address}
                           />
                         }
                       >
                         <Info className="size-3.5" />
                       </TooltipTrigger>
-                      <TooltipContent>
-                        Küçə adını və bina nömrəsini dəqiq yazın (məs. &ldquo;Nizami küçəsi
-                        10&rdquo;). Google Maps və Waze məhz bu ünvana görə istiqamət göstərir —
-                        səhv və ya qeyri-dəqiq ünvan müştərinin sizi tapa bilməməsinə səbəb olur.
-                      </TooltipContent>
+                      <TooltipContent>{t.addressTooltip}</TooltipContent>
                     </Tooltip>
                   </FormLabel>
                   <FormControl>
                     <Input
                       className="h-11 rounded-lg"
-                      placeholder="Küçə, bina, mənzil"
+                      placeholder={t.addressPlaceholder}
                       {...field}
                     />
                   </FormControl>
@@ -291,9 +284,7 @@ export function SettingsForm({
                 </FormItem>
               )}
             />
-            <p className="text-xs text-muted-foreground sm:col-span-2">
-              Ünvan ictimai səhifənizdəki xəritə və Google Maps/Waze naviqasiyası üçün istifadə olunur.
-            </p>
+            <p className="text-xs text-muted-foreground sm:col-span-2">{t.addressHint}</p>
           </CardContent>
         </Card>
 
@@ -301,7 +292,7 @@ export function SettingsForm({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <InstagramIcon className="size-4 text-primary" />
-              Sosial şəbəkələr
+              {t.socialCardTitle}
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
@@ -393,7 +384,7 @@ export function SettingsForm({
                 <FormItem className="sm:col-span-2">
                   <FormLabel className="flex items-center gap-1.5">
                     <Radio className="size-3.5 text-muted-foreground" />
-                    Hazırda canlı yayımdasınız?
+                    {t.liveLabel}
                   </FormLabel>
                   <FormControl>
                     <Select
@@ -401,10 +392,10 @@ export function SettingsForm({
                       onValueChange={(value) => field.onChange(value && value !== "none" ? value : "")}
                     >
                       <SelectTrigger className="h-11 w-full rounded-lg">
-                        <SelectValue placeholder="Yox, canlı yayımda deyiləm">
+                        <SelectValue placeholder={t.liveOptionNone}>
                           {(selected: string | null) =>
                             LIVE_OPTIONS.find((option) => (option.value || "none") === selected)?.label ??
-                            "Yox, canlı yayımda deyiləm"
+                            t.liveOptionNone
                           }
                         </SelectValue>
                       </SelectTrigger>
@@ -417,10 +408,7 @@ export function SettingsForm({
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <p className="text-xs text-muted-foreground">
-                    Seçdiyiniz platformanın ikonu ictimai səhifənizdə profil şəklinizin ətrafında
-                    böyük və rəngli görünəcək.
-                  </p>
+                  <p className="text-xs text-muted-foreground">{t.liveHint}</p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -430,7 +418,7 @@ export function SettingsForm({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Haqqımda</CardTitle>
+            <CardTitle className="text-base">{t.aboutCardTitle}</CardTitle>
           </CardHeader>
           <CardContent>
             <FormField
@@ -438,12 +426,12 @@ export function SettingsForm({
               name="bio"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="sr-only">Bio</FormLabel>
+                  <FormLabel className="sr-only">{t.aboutCardTitle}</FormLabel>
                   <FormControl>
                     <Textarea
                       rows={4}
                       className="resize-none rounded-lg"
-                      placeholder="Özünüz və təcrübəniz haqqında qısa məlumat yazın..."
+                      placeholder={t.bioPlaceholder}
                       {...field}
                     />
                   </FormControl>
@@ -455,7 +443,7 @@ export function SettingsForm({
         </Card>
 
         <Button type="submit" className="h-11 w-fit rounded-lg px-6" disabled={isSubmitting}>
-          {isSubmitting ? "Yadda saxlanılır..." : "Yadda saxla"}
+          {isSubmitting ? t.saving : t.save}
         </Button>
       </form>
     </Form>

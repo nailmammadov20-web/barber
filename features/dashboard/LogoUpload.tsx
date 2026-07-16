@@ -6,6 +6,7 @@ import { Camera, Loader2, Store, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { removeLogo, uploadLogo } from "@/app/dashboard/settings/actions";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/png"];
@@ -14,16 +15,17 @@ export function LogoUpload({ logoUrl }: { logoUrl: string | null }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const { upload: t } = useDictionary().dashboard;
 
   function processFile(file: File | undefined) {
     if (!file) return;
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      toast.error("Yalnız JPEG və ya PNG formatı qəbul olunur.");
+      toast.error(t.invalidType);
       return;
     }
     if (file.size > MAX_BYTES) {
-      toast.error("Şəkil 2MB-dan böyük ola bilməz.");
+      toast.error(t.tooLarge);
       return;
     }
 
@@ -41,7 +43,7 @@ export function LogoUpload({ logoUrl }: { logoUrl: string | null }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Loqo yeniləndi.");
+      toast.success(t.logoUpdated);
     });
   }
 
@@ -63,7 +65,7 @@ export function LogoUpload({ logoUrl }: { logoUrl: string | null }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Loqo silindi.");
+      toast.success(t.logoRemoved);
     });
   }
 
@@ -114,16 +116,16 @@ export function LogoUpload({ logoUrl }: { logoUrl: string | null }) {
             onClick={() => inputRef.current?.click()}
           >
             <Camera className="size-4" />
-            Loqo yüklə
+            {t.logoUploadBtn}
           </Button>
           {logoUrl && (
             <Button type="button" size="sm" variant="ghost" disabled={isPending} onClick={handleRemove}>
               <Trash2 className="size-4" />
-              Sil
+              {t.removeBtn}
             </Button>
           )}
         </div>
-        <p className="text-xs text-muted-foreground">JPEG və ya PNG, maksimum 2MB.</p>
+        <p className="text-xs text-muted-foreground">{t.logoHint}</p>
       </div>
     </div>
   );

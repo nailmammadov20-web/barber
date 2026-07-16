@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { subscribeToPush, unsubscribeFromPush } from "@/app/dashboard/actions";
+import { useDictionary } from "@/lib/i18n/I18nProvider";
 
 export type PushStatus = "checking" | "unsupported" | "subscribed" | "unsubscribed";
 
@@ -20,6 +21,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
 export function usePushSubscription() {
   const [status, setStatus] = useState<PushStatus>("checking");
   const [isBusy, setIsBusy] = useState(false);
+  const { push: t } = useDictionary().dashboard;
 
   useEffect(() => {
     async function checkStatus() {
@@ -39,7 +41,7 @@ export function usePushSubscription() {
     try {
       const permission = await Notification.requestPermission();
       if (permission !== "granted") {
-        toast.error("Bildiriş icazəsi verilmədi.");
+        toast.error(t.permissionDenied);
         return;
       }
 
@@ -64,9 +66,9 @@ export function usePushSubscription() {
       }
 
       setStatus("subscribed");
-      toast.success("Bildirişlər aktivləşdirildi.");
+      toast.success(t.enabledToast);
     } catch {
-      toast.error("Bildirişlər aktivləşdirilə bilmədi.");
+      toast.error(t.enableFailedToast);
     } finally {
       setIsBusy(false);
     }
@@ -83,9 +85,9 @@ export function usePushSubscription() {
         await unsubscribeFromPush(endpoint);
       }
       setStatus("unsubscribed");
-      toast.success("Bildirişlər deaktiv edildi.");
+      toast.success(t.disabledToast);
     } catch {
-      toast.error("Bildirişlər deaktiv edilə bilmədi.");
+      toast.error(t.disableFailedToast);
     } finally {
       setIsBusy(false);
     }
