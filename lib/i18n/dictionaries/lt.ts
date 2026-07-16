@@ -102,6 +102,7 @@ const dictionary: DictionaryShape = {
     successToast: "Jūsų rezervacija priimta. Barberis ją patvirtins.",
     viewsSuffix: "peržiūrų",
     viewingNowSuffix: "žmonės peržiūri dabar",
+    newBookingPushTitle: "Nauja rezervacija!",
   },
   confirmDialog: {
     cancel: "Atšaukti",
@@ -111,6 +112,26 @@ const dictionary: DictionaryShape = {
     downloadedToast: "Paveikslėlis atsisiųstas. Galite juo pasidalinti WhatsApp/Instagram statuse.",
     failedToast: "Nepavyko sukurti paveikslėlio, bandykite dar kartą.",
     imageCta: "Rezervuoti",
+  },
+  errors: {
+    invalidData: "Duomenys neteisingi.",
+    invalidDataRetry: "Duomenys neteisingi, patikrinkite formą dar kartą.",
+    sessionExpired: "Sesija baigėsi, prisijunkite iš naujo.",
+    noPermission: "Neturite reikiamų teisių.",
+    wrongCredentials: "Neteisingas el. paštas arba slaptažodis.",
+    emailTaken: "Šis el. paštas jau naudojamas.",
+    imageNotSelected: "Nuotrauka nepasirinkta.",
+    bookingNotFound: "Rezervacija nerasta.",
+    blockNotFound: "Blokavimas nerastas.",
+    serviceNotFound: "Paslauga nerasta.",
+    slotTaken: "Šis laikas jau užimtas, pasirinkite kitą.",
+    slotTakenNoConsecutive: "Šis laikas jau užimtas arba nėra pakankamai iš eilės einančio laiko, pasirinkite kitą.",
+    serviceNotFoundInSelection: "Viena iš pasirinktų paslaugų nerasta.",
+    atLeastOneService: "Pasirinkite bent vieną paslaugą.",
+    serviceDataInvalidTemplate: "„{name}“ duomenys neteisingi.",
+    serviceHasBookingsCannotDelete:
+      "Šios paslaugos ištrinti negalima, nes su ja susijusios rezervacijos. Vietoj to ją deaktyvuokite.",
+    manualBlockDefaultNote: "Užimta (užblokuota rankiniu būdu)",
   },
   dashboard: {
     nav: {

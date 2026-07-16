@@ -4,7 +4,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { InstallPrompt } from "@/components/install-prompt";
-import { LanguageSwitcher } from "@/components/language-switcher";
 import { I18nProvider } from "@/lib/i18n/I18nProvider";
 import { getLocale } from "@/lib/i18n/getLocale";
 import { getDictionary } from "@/lib/i18n/getDictionary";
@@ -53,7 +52,6 @@ export default async function RootLayout({
           <I18nProvider locale={locale} dict={dict}>
             {children}
             <ThemeToggle />
-            <LanguageSwitcher />
             <InstallPrompt />
             <Toaster />
           </I18nProvider>

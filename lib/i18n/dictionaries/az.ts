@@ -102,6 +102,7 @@ const dictionary: DictionaryShape = {
     successToast: "Rezervasiyanız qəbul edildi. Bərbər təsdiqləyəcək.",
     viewsSuffix: "baxış",
     viewingNowSuffix: "nəfər hazırda baxır",
+    newBookingPushTitle: "Yeni rezervasiya!",
   },
   confirmDialog: {
     cancel: "İmtina",
@@ -111,6 +112,26 @@ const dictionary: DictionaryShape = {
     downloadedToast: "Şəkil endirildi. WhatsApp/Instagram statusunuzda paylaşa bilərsiniz.",
     failedToast: "Şəkil hazırlana bilmədi, yenidən cəhd edin.",
     imageCta: "Rezervasiya et",
+  },
+  errors: {
+    invalidData: "Məlumatlar düzgün deyil.",
+    invalidDataRetry: "Məlumatlar düzgün deyil, formu yenidən yoxlayın.",
+    sessionExpired: "Sessiya bitib, yenidən daxil olun.",
+    noPermission: "Səlahiyyətiniz yoxdur.",
+    wrongCredentials: "Email və ya parol yanlışdır.",
+    emailTaken: "Bu email artıq istifadə olunub.",
+    imageNotSelected: "Şəkil seçilməyib.",
+    bookingNotFound: "Rezervasiya tapılmadı.",
+    blockNotFound: "Blok tapılmadı.",
+    serviceNotFound: "Xidmət tapılmadı.",
+    slotTaken: "Bu saat artıq tutulub, başqa saat seçin.",
+    slotTakenNoConsecutive: "Bu saat artıq tutulub və ya kifayət qədər ardıcıl vaxt yoxdur, başqa saat seçin.",
+    serviceNotFoundInSelection: "Seçilmiş xidmətlərdən biri tapılmadı.",
+    atLeastOneService: "Ən azı bir xidmət seçin.",
+    serviceDataInvalidTemplate: "\"{name}\" üçün məlumatlar düzgün deyil.",
+    serviceHasBookingsCannotDelete:
+      "Bu xidmətlə bağlı rezervasiyalar mövcud olduğu üçün silinə bilməz. Əvəzinə deaktiv edin.",
+    manualBlockDefaultNote: "Məşğul (əl ilə bağlanıb)",
   },
   dashboard: {
     nav: {

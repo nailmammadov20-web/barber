@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { destroySession, getCurrentBarber } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
+import { getLocale } from "@/lib/i18n/getLocale";
+import { getDictionary } from "@/lib/i18n/getDictionary";
 
 export async function logout(): Promise<void> {
   await destroySession();
@@ -28,7 +30,7 @@ type ActionResult = { success: true } | { success: false; error: string };
 
 export async function subscribeToPush(subscription: PushSubscriptionInput): Promise<ActionResult> {
   const session = await getCurrentBarber();
-  if (!session) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+  if (!session) return { success: false, error: getDictionary(await getLocale()).errors.noPermission };
 
   await prisma.pushSubscription.upsert({
     where: { endpoint: subscription.endpoint },
@@ -46,7 +48,7 @@ export async function subscribeToPush(subscription: PushSubscriptionInput): Prom
 
 export async function unsubscribeFromPush(endpoint: string): Promise<ActionResult> {
   const session = await getCurrentBarber();
-  if (!session) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+  if (!session) return { success: false, error: getDictionary(await getLocale()).errors.noPermission };
 
   await prisma.pushSubscription.deleteMany({ where: { endpoint, barberId: session.barber.id } });
   return { success: true };

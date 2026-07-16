@@ -4,16 +4,18 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentBarber } from "@/lib/auth/session";
 import { workingHoursSchema, type WorkingHourEntry } from "@/lib/validation/workingHours";
+import { getLocale } from "@/lib/i18n/getLocale";
+import { getDictionary } from "@/lib/i18n/getDictionary";
 
 type ActionResult = { success: true } | { success: false; error: string };
 
 export async function saveWorkingHours(entries: WorkingHourEntry[]): Promise<ActionResult> {
   const session = await getCurrentBarber();
-  if (!session) return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
+  if (!session) return { success: false, error: getDictionary(await getLocale()).errors.sessionExpired };
 
   const parsed = workingHoursSchema.safeParse(entries);
   if (!parsed.success) {
-    return { success: false, error: "Məlumatlar düzgün deyil." };
+    return { success: false, error: getDictionary(await getLocale()).errors.invalidData };
   }
 
   const barberId = session.barber.id;

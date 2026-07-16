@@ -9,6 +9,8 @@ import { getViewStats, trackProfileView, type ViewStats } from "@/lib/profileVie
 import { getCurrentBarber } from "@/lib/auth/session";
 import { bookingSchema, type BookingInput } from "@/lib/validation/booking";
 import { sendPushToBarber } from "@/lib/push";
+import { getLocale } from "@/lib/i18n/getLocale";
+import { getDictionary } from "@/lib/i18n/getDictionary";
 
 const VISITOR_COOKIE = "pv_visitor";
 
@@ -39,22 +41,24 @@ export async function fetchAvailableSlots(serviceIds: string[], date: string): P
 type CreateBookingResult = { success: true } | { success: false; error: string };
 
 export async function createBooking(input: BookingInput): Promise<CreateBookingResult> {
+  const dict = getDictionary(await getLocale());
+
   const parsed = bookingSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: "Məlumatlar düzgün deyil, formu yenidən yoxlayın." };
+    return { success: false, error: dict.errors.invalidDataRetry };
   }
   const { serviceIds, date, timeSlot, customerName, customerPhone } = parsed.data;
 
   const resolved = await resolveActiveServices(serviceIds);
   if (!resolved) {
-    return { success: false, error: "Seçilmiş xidmətlərdən biri tapılmadı." };
+    return { success: false, error: dict.errors.serviceNotFoundInSelection };
   }
   const { services, barberId } = resolved;
   const totalDuration = services.reduce((sum, service) => sum + service.durationMinutes, 0);
 
   const available = await getAvailableSlots(barberId, date, totalDuration);
   if (!available.includes(timeSlot)) {
-    return { success: false, error: "Bu saat artıq tutulub və ya kifayət qədər ardıcıl vaxt yoxdur, başqa saat seçin." };
+    return { success: false, error: dict.errors.slotTakenNoConsecutive };
   }
 
   try {
@@ -83,7 +87,7 @@ export async function createBooking(input: BookingInput): Promise<CreateBookingR
     });
   } catch (error) {
     if (error && typeof error === "object" && "code" in error && error.code === "P2002") {
-      return { success: false, error: "Bu saat artıq tutulub, başqa saat seçin." };
+      return { success: false, error: dict.errors.slotTaken };
     }
     throw error;
   }
@@ -92,7 +96,7 @@ export async function createBooking(input: BookingInput): Promise<CreateBookingR
   revalidatePath("/dashboard");
 
   sendPushToBarber(barberId, {
-    title: "Yeni rezervasiya!",
+    title: dict.booking.newBookingPushTitle,
     body: `${customerName} — ${date} ${timeSlot}`,
     url: `/dashboard/bookings?date=${date}`,
   }).catch(() => {});

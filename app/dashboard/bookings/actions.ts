@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentBarber } from "@/lib/auth/session";
 import { getAvailableSlots, parseTimeToMinutes, toDateOnly } from "@/lib/slots";
 import { manualBlockSchema, type ManualBlockInput } from "@/lib/validation/manualBlock";
+import { getLocale } from "@/lib/i18n/getLocale";
+import { getDictionary } from "@/lib/i18n/getDictionary";
 
 type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | "NO_SHOW";
 
@@ -30,12 +32,12 @@ async function findOwnedBooking(id: string, barberId: string) {
 export async function confirmBooking(id: string): Promise<ConfirmResult> {
   const session = await getCurrentBarber();
   if (!session) {
-    return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
+    return { success: false, error: getDictionary(await getLocale()).errors.sessionExpired };
   }
 
   const existing = await findOwnedBooking(id, session.barber.id);
   if (!existing) {
-    return { success: false, error: "Rezervasiya tapılmadı." };
+    return { success: false, error: getDictionary(await getLocale()).errors.bookingNotFound };
   }
 
   const booking = await prisma.booking.update({
@@ -62,12 +64,12 @@ export async function confirmBooking(id: string): Promise<ConfirmResult> {
 export async function setBookingStatus(id: string, status: BookingStatus): Promise<SimpleResult> {
   const session = await getCurrentBarber();
   if (!session) {
-    return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
+    return { success: false, error: getDictionary(await getLocale()).errors.sessionExpired };
   }
 
   const existing = await findOwnedBooking(id, session.barber.id);
   if (!existing) {
-    return { success: false, error: "Rezervasiya tapılmadı." };
+    return { success: false, error: getDictionary(await getLocale()).errors.bookingNotFound };
   }
 
   await prisma.booking.update({ where: { id }, data: { status } });
@@ -87,12 +89,14 @@ export async function fetchOwnAvailableSlots(date: string, durationMinutes: numb
 export async function createManualBlock(input: ManualBlockInput): Promise<SimpleResult> {
   const session = await getCurrentBarber();
   if (!session) {
-    return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
+    return { success: false, error: getDictionary(await getLocale()).errors.sessionExpired };
   }
+
+  const dict = getDictionary(await getLocale());
 
   const parsed = manualBlockSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: "Məlumatlar düzgün deyil." };
+    return { success: false, error: dict.errors.invalidData };
   }
   const { date, timeSlot, durationMinutes, note } = parsed.data;
   const barberId = session.barber.id;
@@ -111,7 +115,7 @@ export async function createManualBlock(input: ManualBlockInput): Promise<Simple
     return start < bookingEnd && end > bookingStart;
   });
   if (overlaps) {
-    return { success: false, error: "Bu saat artıq tutulub, başqa saat seçin." };
+    return { success: false, error: dict.errors.slotTaken };
   }
 
   try {
@@ -123,13 +127,13 @@ export async function createManualBlock(input: ManualBlockInput): Promise<Simple
         durationMinutes,
         status: "CONFIRMED",
         isBlock: true,
-        customerName: note?.trim() ? note.trim() : "Məşğul (əl ilə bağlanıb)",
+        customerName: note?.trim() ? note.trim() : dict.errors.manualBlockDefaultNote,
         customerPhone: "-",
       },
     });
   } catch (error) {
     if (error && typeof error === "object" && "code" in error && error.code === "P2002") {
-      return { success: false, error: "Bu saat artıq tutulub, başqa saat seçin." };
+      return { success: false, error: dict.errors.slotTaken };
     }
     throw error;
   }
@@ -142,14 +146,14 @@ export async function createManualBlock(input: ManualBlockInput): Promise<Simple
 export async function deleteManualBlock(id: string): Promise<SimpleResult> {
   const session = await getCurrentBarber();
   if (!session) {
-    return { success: false, error: "Sessiya bitib, yenidən daxil olun." };
+    return { success: false, error: getDictionary(await getLocale()).errors.sessionExpired };
   }
 
   const existing = await prisma.booking.findFirst({
     where: { id, barberId: session.barber.id, isBlock: true },
   });
   if (!existing) {
-    return { success: false, error: "Blok tapılmadı." };
+    return { success: false, error: getDictionary(await getLocale()).errors.blockNotFound };
   }
 
   await prisma.booking.delete({ where: { id } });

@@ -85,6 +85,7 @@ export type DictionaryShape = {
     successToast: string;
     viewsSuffix: string;
     viewingNowSuffix: string;
+    newBookingPushTitle: string;
   };
   confirmDialog: {
     cancel: string;
@@ -94,6 +95,25 @@ export type DictionaryShape = {
     downloadedToast: string;
     failedToast: string;
     imageCta: string;
+  };
+  errors: {
+    invalidData: string;
+    invalidDataRetry: string;
+    sessionExpired: string;
+    noPermission: string;
+    wrongCredentials: string;
+    emailTaken: string;
+    imageNotSelected: string;
+    bookingNotFound: string;
+    blockNotFound: string;
+    serviceNotFound: string;
+    slotTaken: string;
+    slotTakenNoConsecutive: string;
+    serviceNotFoundInSelection: string;
+    atLeastOneService: string;
+    serviceDataInvalidTemplate: string;
+    serviceHasBookingsCannotDelete: string;
+    manualBlockDefaultNote: string;
   };
   dashboard: {
     nav: {
