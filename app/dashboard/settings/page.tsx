@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { ImageIcon, PanelTop, Store } from "lucide-react";
 import { getCurrentBarber } from "@/lib/auth/session";
+import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SettingsForm } from "@/features/dashboard/SettingsForm";
 import { AvatarUpload } from "@/features/dashboard/AvatarUpload";
@@ -10,6 +11,8 @@ import { LogoUpload } from "@/features/dashboard/LogoUpload";
 export default async function DashboardSettingsPage() {
   const session = await getCurrentBarber();
   if (!session) redirect("/login");
+
+  const servicesCount = await prisma.service.count({ where: { barberId: session.barber.id } });
 
   return (
     <div className="flex flex-col gap-6">
@@ -55,6 +58,7 @@ export default async function DashboardSettingsPage() {
       </Card>
 
       <SettingsForm
+        hasServices={servicesCount > 0}
         initialValues={{
           fullName: session.barber.fullName,
           salonName: session.barber.salonName ?? "",

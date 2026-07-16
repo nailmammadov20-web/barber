@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -37,7 +38,14 @@ const LIVE_OPTIONS = [
   { value: "FACEBOOK", label: "Facebook" },
 ];
 
-export function SettingsForm({ initialValues }: { initialValues: ProfileInput }) {
+export function SettingsForm({
+  initialValues,
+  hasServices,
+}: {
+  initialValues: ProfileInput;
+  hasServices: boolean;
+}) {
+  const router = useRouter();
   const [isSubmitting, startTransition] = useTransition();
 
   const form = useForm<ProfileInput>({
@@ -52,7 +60,19 @@ export function SettingsForm({ initialValues }: { initialValues: ProfileInput })
         toast.error(result.error);
         return;
       }
-      toast.success("Profil yeniləndi.");
+
+      if (hasServices) {
+        toast.success("Profil yeniləndi.");
+        return;
+      }
+
+      toast.success("Profil yeniləndi.", {
+        description: "İndi xidmətlərinizi əlavə edin ki, müştərilər rezervasiya edə bilsin.",
+        action: {
+          label: "Xidmət əlavə et",
+          onClick: () => router.push("/dashboard/services"),
+        },
+      });
     });
   }
 
