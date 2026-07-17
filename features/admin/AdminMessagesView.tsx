@@ -129,7 +129,7 @@ export function AdminMessagesView() {
   );
 
   return (
-    <div className="grid h-[calc(100vh-16rem)] min-h-[26rem] gap-0 overflow-hidden rounded-xl border bg-card sm:grid-cols-[300px_1fr]">
+    <div className="grid h-[calc(100dvh-16rem)] min-h-[26rem] gap-0 overflow-hidden rounded-xl border bg-card sm:grid-cols-[300px_1fr]">
       <div className={cn("flex flex-col overflow-hidden border-r", selected && "hidden sm:flex")}>
         <div className="shrink-0 border-b p-2">
           <div className="relative">
@@ -226,7 +226,7 @@ export function AdminMessagesView() {
               <p className="truncate font-medium">{selected.fullName}</p>
             </div>
 
-            <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-4">
+            <div className="flex flex-1 flex-col justify-end gap-2 overflow-y-auto p-4">
               {messages === null ? (
                 <p className="text-sm text-muted-foreground">Yüklənir...</p>
               ) : messages.length === 0 ? (
