@@ -54,17 +54,15 @@ export function SupportChatWidget() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed right-4 bottom-24 z-40 flex items-center gap-2 rounded-full border-2 border-primary bg-card px-4 py-2.5 text-sm font-medium shadow-lg transition-transform hover:scale-105 sm:right-6 sm:bottom-6"
+        aria-label={t.widgetLabel}
+        className="fixed right-4 bottom-24 z-40 flex size-14 items-center justify-center rounded-full border-2 border-primary bg-card shadow-lg transition-transform hover:scale-105 sm:right-6 sm:bottom-6"
       >
-        <span className="relative">
-          <MessageCircle className="size-5 text-primary" />
-          {unreadCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[0.6rem] font-semibold text-destructive-foreground">
-              {unreadCount > 9 ? "9+" : unreadCount}
-            </span>
-          )}
-        </span>
-        {t.widgetLabel}
+        <MessageCircle className="size-6 text-primary" />
+        {unreadCount > 0 && (
+          <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-destructive text-[0.65rem] font-semibold text-destructive-foreground">
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </span>
+        )}
       </button>
     );
   }
