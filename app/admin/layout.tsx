@@ -3,6 +3,7 @@ import { ShieldCheck, LogOut } from "lucide-react";
 import { getCurrentAdmin } from "@/lib/auth/session";
 import { logout } from "@/app/dashboard/actions";
 import { Button } from "@/components/ui/button";
+import { AdminNav } from "@/features/admin/AdminNav";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await getCurrentAdmin();
@@ -32,6 +33,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </Button>
         </form>
       </div>
+      <AdminNav />
       <div className="min-w-0 flex-1">{children}</div>
     </div>
   );

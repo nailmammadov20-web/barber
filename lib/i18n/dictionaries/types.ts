@@ -125,6 +125,8 @@ export type DictionaryShape = {
       servicesShort: string;
       hours: string;
       hoursShort: string;
+      messages: string;
+      messagesShort: string;
       settings: string;
       settingsShort: string;
       logout: string;
@@ -367,6 +369,15 @@ export type DictionaryShape = {
       fallbackHint: string;
       installButton: string;
       alreadyInstalled: string;
+    };
+    messages: {
+      pageTitle: string;
+      pageSubtitle: string;
+      loading: string;
+      empty: string;
+      placeholder: string;
+      send: string;
+      adminLabel: string;
     };
   };
 };

@@ -45,3 +45,35 @@ export async function sendPushToBarber(
     await prisma.pushSubscription.deleteMany({ where: { endpoint: { in: expiredEndpoints } } });
   }
 }
+
+export async function sendPushToAdmins(payload: { title: string; body: string; url?: string }): Promise<void> {
+  if (!isConfigured) return;
+
+  const subscriptions = await prisma.adminPushSubscription.findMany();
+  if (subscriptions.length === 0) return;
+
+  const expiredEndpoints: string[] = [];
+
+  await Promise.all(
+    subscriptions.map(async (subscription) => {
+      try {
+        await webpush.sendNotification(
+          {
+            endpoint: subscription.endpoint,
+            keys: { p256dh: subscription.p256dh, auth: subscription.auth },
+          },
+          JSON.stringify(payload)
+        );
+      } catch (error) {
+        const statusCode = (error as { statusCode?: number }).statusCode;
+        if (statusCode === 404 || statusCode === 410) {
+          expiredEndpoints.push(subscription.endpoint);
+        }
+      }
+    })
+  );
+
+  if (expiredEndpoints.length > 0) {
+    await prisma.adminPushSubscription.deleteMany({ where: { endpoint: { in: expiredEndpoints } } });
+  }
+}

@@ -8,6 +8,7 @@ import { getCurrentAdmin } from "@/lib/auth/session";
 import { hashPassword } from "@/lib/auth/password";
 import { profileSchema, type ProfileInput } from "@/lib/validation/profile";
 import { serviceSchema, type ServiceInput } from "@/lib/validation/service";
+import { messageSchema } from "@/lib/validation/message";
 import { sendPushToBarber } from "@/lib/push";
 
 type ActionResult = { success: true } | { success: false; error: string };
@@ -20,6 +21,28 @@ type BarberServiceItem = {
   active: boolean;
 };
 type ListServicesResult = { success: true; services: BarberServiceItem[] } | { success: false; error: string };
+
+export type AdminMessageItem = {
+  id: string;
+  sender: "BARBER" | "ADMIN";
+  body: string;
+  createdAt: string;
+};
+type AdminMessagesResult = { success: true; messages: AdminMessageItem[] } | { success: false; error: string };
+
+export type ConversationItem = {
+  barberId: string;
+  fullName: string;
+  lastMessage: string;
+  lastMessageAt: string;
+  lastSender: "BARBER" | "ADMIN";
+  unreadCount: number;
+};
+type ConversationsResult =
+  | { success: true; conversations: ConversationItem[] }
+  | { success: false; error: string };
+
+type PushSubscriptionInput = { endpoint: string; keys: { p256dh: string; auth: string } };
 
 export async function toggleBarberActive(barberId: string): Promise<ActionResult> {
   const admin = await getCurrentAdmin();
@@ -169,6 +192,133 @@ export async function adminDeleteService(barberId: string, serviceId: string): P
   const barber = await prisma.barberProfile.findUnique({ where: { id: barberId } });
   revalidatePath("/admin");
   if (barber) revalidatePath(`/barber/${barber.slug}`);
+  return { success: true };
+}
+
+export async function getAdminConversations(): Promise<ConversationsResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+
+  const barbers = await prisma.barberProfile.findMany({
+    select: {
+      id: true,
+      fullName: true,
+      messages: { orderBy: { createdAt: "desc" }, take: 1 },
+    },
+    orderBy: { fullName: "asc" },
+  });
+
+  const unreadCounts = await prisma.message.groupBy({
+    by: ["barberId"],
+    where: { sender: "BARBER", readByAdmin: false },
+    _count: { _all: true },
+  });
+  const unreadMap = new Map(unreadCounts.map((row) => [row.barberId, row._count._all]));
+
+  const conversations = barbers
+    .map((barber) => ({
+      barberId: barber.id,
+      fullName: barber.fullName,
+      lastMessage: barber.messages[0]?.body ?? "",
+      lastMessageAt: barber.messages[0]?.createdAt.toISOString() ?? "",
+      lastSender: (barber.messages[0]?.sender ?? "BARBER") as "BARBER" | "ADMIN",
+      unreadCount: unreadMap.get(barber.id) ?? 0,
+    }))
+    .sort((a, b) => {
+      if (!a.lastMessageAt && !b.lastMessageAt) return a.fullName.localeCompare(b.fullName);
+      if (!a.lastMessageAt) return 1;
+      if (!b.lastMessageAt) return -1;
+      return b.lastMessageAt.localeCompare(a.lastMessageAt);
+    });
+
+  return { success: true, conversations };
+}
+
+export async function getConversationMessages(barberId: string): Promise<AdminMessagesResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+
+  await prisma.message.updateMany({
+    where: { barberId, sender: "BARBER", readByAdmin: false },
+    data: { readByAdmin: true },
+  });
+
+  const messages = await prisma.message.findMany({
+    where: { barberId },
+    orderBy: { createdAt: "asc" },
+  });
+
+  return {
+    success: true,
+    messages: messages.map((message) => ({
+      id: message.id,
+      sender: message.sender,
+      body: message.body,
+      createdAt: message.createdAt.toISOString(),
+    })),
+  };
+}
+
+export async function sendAdminMessage(barberId: string, body: string): Promise<ActionResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+
+  const parsed = messageSchema.safeParse({ body });
+  if (!parsed.success) return { success: false, error: parsed.error.issues[0].message };
+
+  const barber = await prisma.barberProfile.findUnique({ where: { id: barberId } });
+  if (!barber) return { success: false, error: "Bərbər tapılmadı." };
+
+  await prisma.message.create({
+    data: {
+      barberId,
+      sender: "ADMIN",
+      body: parsed.data.body,
+      readByAdmin: true,
+      readByBarber: false,
+    },
+  });
+
+  await sendPushToBarber(barberId, {
+    title: "Admindən yeni mesaj",
+    body: parsed.data.body.slice(0, 120),
+    url: "/dashboard/messages",
+  });
+
+  revalidatePath("/admin/messages");
+  return { success: true };
+}
+
+export async function getAdminUnreadMessageCount(): Promise<number> {
+  const admin = await getCurrentAdmin();
+  if (!admin) return 0;
+
+  return prisma.message.count({ where: { sender: "BARBER", readByAdmin: false } });
+}
+
+export async function subscribeAdminToPush(subscription: PushSubscriptionInput): Promise<ActionResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+
+  await prisma.adminPushSubscription.upsert({
+    where: { endpoint: subscription.endpoint },
+    update: { adminId: admin.user.id, p256dh: subscription.keys.p256dh, auth: subscription.keys.auth },
+    create: {
+      adminId: admin.user.id,
+      endpoint: subscription.endpoint,
+      p256dh: subscription.keys.p256dh,
+      auth: subscription.keys.auth,
+    },
+  });
+
+  return { success: true };
+}
+
+export async function unsubscribeAdminFromPush(endpoint: string): Promise<ActionResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+
+  await prisma.adminPushSubscription.deleteMany({ where: { endpoint, adminId: admin.user.id } });
   return { success: true };
 }
 

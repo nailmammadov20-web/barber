@@ -3,8 +3,9 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { ExternalLink, Search } from "lucide-react";
+import { ExternalLink, MessageCircle, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ConfirmActionButton } from "@/features/dashboard/ConfirmActionButton";
@@ -241,6 +242,17 @@ export function AdminBarberList({ barbers }: { barbers: AdminBarberItem[] }) {
                     }}
                   />
                   <ManageServicesDialog barberId={barber.id} fullName={barber.fullName} currency={barber.currency} />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5"
+                    render={
+                      <Link href={`/admin/messages?barberId=${barber.id}`}>
+                        <MessageCircle className="size-4" />
+                        Mesaj
+                      </Link>
+                    }
+                  />
                   <ResetPasswordButton barberId={barber.id} fullName={barber.fullName} />
                   <SendInstallReminderButton barberId={barber.id} fullName={barber.fullName} />
                   <ConfirmActionButton

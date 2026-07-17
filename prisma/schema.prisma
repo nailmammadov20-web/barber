@@ -30,6 +30,11 @@ enum SocialPlatform {
   FACEBOOK
 }
 
+enum MessageSender {
+  BARBER
+  ADMIN
+}
+
 model User {
   id            String         @id @default(cuid())
   email         String         @unique
@@ -39,6 +44,7 @@ model User {
   lastActiveAt  DateTime?
   barberProfile BarberProfile?
   sessions      Session[]
+  adminPushSubscriptions AdminPushSubscription[]
 }
 
 model Session {
@@ -76,6 +82,7 @@ model BarberProfile {
   bookings          Booking[]
   profileViews      ProfileView[]
   pushSubscriptions PushSubscription[]
+  messages          Message[]
 }
 
 model PushSubscription {
@@ -140,6 +147,29 @@ model BookingService {
   durationMinutes Int
 
   @@unique([bookingId, serviceId])
+}
+
+model Message {
+  id           String        @id @default(cuid())
+  barberId     String
+  barber       BarberProfile @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  sender       MessageSender
+  body         String
+  readByBarber Boolean       @default(false)
+  readByAdmin  Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+
+  @@index([barberId, createdAt])
+}
+
+model AdminPushSubscription {
+  id        String   @id @default(cuid())
+  adminId   String
+  admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
 }
 
 model ProfileView {
