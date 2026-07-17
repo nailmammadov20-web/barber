@@ -3,16 +3,10 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { ExternalLink, MoreVertical, Search } from "lucide-react";
+import { ExternalLink, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { ConfirmActionButton } from "@/features/dashboard/ConfirmActionButton";
 import { ResetPasswordButton } from "@/features/admin/ResetPasswordButton";
 import { EditBarberDialog } from "@/features/admin/EditBarberDialog";
@@ -227,12 +221,30 @@ export function AdminBarberList({ barbers }: { barbers: AdminBarberItem[] }) {
                     )}
                   </div>
                 </div>
-                <div className="flex w-full items-center gap-2 sm:w-auto sm:shrink-0">
+                <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0 sm:justify-end">
+                  <EditBarberDialog
+                    barberId={barber.id}
+                    initialValues={{
+                      fullName: barber.fullName,
+                      email: barber.email,
+                      phone: barber.phone,
+                      salonName: barber.salonName,
+                      city: barber.city,
+                      address: barber.address,
+                      bio: barber.bio,
+                      instagramUrl: barber.instagramUrl,
+                      tiktokUrl: barber.tiktokUrl,
+                      youtubeUrl: barber.youtubeUrl,
+                      facebookUrl: barber.facebookUrl,
+                      liveOn: barber.liveOn,
+                    }}
+                  />
+                  <ResetPasswordButton barberId={barber.id} fullName={barber.fullName} />
+                  <SendInstallReminderButton barberId={barber.id} fullName={barber.fullName} />
                   <ConfirmActionButton
                     label={barber.active ? "Deaktiv et" : "Aktiv et"}
                     variant={barber.active ? "destructive" : "default"}
                     disabled={isPending}
-                    className="flex-1 sm:flex-initial"
                     title={barber.active ? "Bərbəri deaktiv edirsiniz?" : "Bərbəri aktiv edirsiniz?"}
                     description={
                       barber.active
@@ -242,44 +254,7 @@ export function AdminBarberList({ barbers }: { barbers: AdminBarberItem[] }) {
                     confirmLabel="Bəli"
                     onConfirm={() => handleToggle(barber)}
                   />
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <button
-                          type="button"
-                          aria-label="Daha çox əməliyyat"
-                          className="flex size-8 shrink-0 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                        />
-                      }
-                    >
-                      <MoreVertical className="size-4" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <div className="flex flex-col items-stretch gap-1 [&_button]:w-full [&_button]:justify-start">
-                        <EditBarberDialog
-                          barberId={barber.id}
-                          initialValues={{
-                            fullName: barber.fullName,
-                            email: barber.email,
-                            phone: barber.phone,
-                            salonName: barber.salonName,
-                            city: barber.city,
-                            address: barber.address,
-                            bio: barber.bio,
-                            instagramUrl: barber.instagramUrl,
-                            tiktokUrl: barber.tiktokUrl,
-                            youtubeUrl: barber.youtubeUrl,
-                            facebookUrl: barber.facebookUrl,
-                            liveOn: barber.liveOn,
-                          }}
-                        />
-                        <ResetPasswordButton barberId={barber.id} fullName={barber.fullName} />
-                        <SendInstallReminderButton barberId={barber.id} fullName={barber.fullName} />
-                        <DropdownMenuSeparator />
-                        <DeleteBarberButton barberId={barber.id} fullName={barber.fullName} />
-                      </div>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <DeleteBarberButton barberId={barber.id} fullName={barber.fullName} />
                 </div>
               </CardContent>
             </Card>
