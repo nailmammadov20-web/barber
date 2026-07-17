@@ -4,6 +4,7 @@ import { getCurrentAdmin } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { formatDateDisplay } from "@/lib/formatDate";
 import { isInactiveSince, isNewSince, isOnline } from "@/lib/presence";
+import { detectCountryFromPhone, COUNTRY_LABEL, COUNTRY_CURRENCY, type BarberCountry } from "@/lib/country";
 import { Card, CardContent } from "@/components/ui/card";
 import { AdminBarberList, type AdminBarberItem } from "@/features/admin/AdminBarberList";
 
@@ -32,15 +33,14 @@ export default async function AdminPage() {
   ]);
 
   const revenueByBarber = new Map<string, number>();
-  let totalRevenue = 0;
   for (const booking of revenueBookings) {
     const bookingTotal = booking.services.reduce((sum, service) => sum + service.price, 0);
-    totalRevenue += bookingTotal;
     revenueByBarber.set(booking.barberId, (revenueByBarber.get(booking.barberId) ?? 0) + bookingTotal);
   }
 
   const items: AdminBarberItem[] = barbers.map((barber) => {
     const lastActiveAt = barber.user.lastActiveAt;
+    const country = detectCountryFromPhone(barber.phone);
     return {
       id: barber.id,
       fullName: barber.fullName,
@@ -51,6 +51,8 @@ export default async function AdminPage() {
       active: barber.active,
       bookingsCount: barber._count.bookings,
       revenue: revenueByBarber.get(barber.id) ?? 0,
+      currency: COUNTRY_CURRENCY[country],
+      country,
       bio: barber.bio ?? "",
       createdAtDisplay: formatDateDisplay(barber.createdAt.toISOString().slice(0, 10)),
       isOnline: isOnline(lastActiveAt),
@@ -63,11 +65,29 @@ export default async function AdminPage() {
     };
   });
 
+  const revenueByCurrency = new Map<string, number>();
+  for (const item of items) {
+    revenueByCurrency.set(item.currency, (revenueByCurrency.get(item.currency) ?? 0) + item.revenue);
+  }
+  const revenueDisplay = Array.from(revenueByCurrency.entries())
+    .filter(([, amount]) => amount > 0)
+    .map(([currency, amount]) => `${amount} ${currency}`)
+    .join(" + ") || `0 AZN`;
+
+  const countryCounts = new Map<BarberCountry, number>();
+  for (const item of items) {
+    countryCounts.set(item.country, (countryCounts.get(item.country) ?? 0) + 1);
+  }
+  const countryBreakdown = Array.from(countryCounts.entries())
+    .filter(([country]) => country !== "OTHER")
+    .map(([country, count]) => `${COUNTRY_LABEL[country]}: ${count}`)
+    .join(" · ");
+
   const stats = [
     { label: "Ümumi bərbərlər", value: totalBarbers, icon: Users },
     { label: "Aktiv bərbərlər", value: activeBarbers, icon: CircleCheckBig },
     { label: "Ümumi rezervasiyalar", value: totalBookings, icon: CalendarCheck },
-    { label: "Ümumi qazanc", value: `${totalRevenue} AZN`, icon: Wallet },
+    { label: "Ümumi qazanc", value: revenueDisplay, icon: Wallet },
   ];
 
   return (
@@ -75,6 +95,7 @@ export default async function AdminPage() {
       <div>
         <h1 className="text-2xl font-semibold">Bərbərlər</h1>
         <p className="text-sm text-muted-foreground">Platformadakı bütün bərbər hesablarını idarə edin.</p>
+        {countryBreakdown && <p className="mt-1 text-xs text-muted-foreground">{countryBreakdown}</p>}
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
