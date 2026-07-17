@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentAdmin } from "@/lib/auth/session";
 import { hashPassword } from "@/lib/auth/password";
 import { profileSchema } from "@/lib/validation/profile";
+import { sendPushToBarber } from "@/lib/push";
 
 type ActionResult = { success: true } | { success: false; error: string };
 type ResetPasswordResult = { success: true; newPassword: string } | { success: false; error: string };
@@ -59,6 +60,27 @@ export async function deleteBarber(barberId: string): Promise<ActionResult> {
 
   revalidatePath("/admin");
   revalidatePath(`/barber/${barber.slug}`);
+  return { success: true };
+}
+
+export async function sendInstallAppReminder(barberId: string): Promise<ActionResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+
+  const barber = await prisma.barberProfile.findUnique({ where: { id: barberId } });
+  if (!barber) return { success: false, error: "Bərbər tapılmadı." };
+
+  const subscription = await prisma.pushSubscription.findFirst({ where: { barberId } });
+  if (!subscription) {
+    return { success: false, error: "Bu bərbər hələ bildirişlərə abunə olmayıb, bildiriş göndərilə bilmədi." };
+  }
+
+  await sendPushToBarber(barberId, {
+    title: "Tətbiqi telefonunuza yükləyin",
+    body: "BarberHub-u ana ekrana əlavə edin ki, daha sürətli daxil olasınız.",
+    url: "/dashboard/settings",
+  });
+
   return { success: true };
 }
 

@@ -10,6 +10,7 @@ import { ConfirmActionButton } from "@/features/dashboard/ConfirmActionButton";
 import { ResetPasswordButton } from "@/features/admin/ResetPasswordButton";
 import { EditBioDialog } from "@/features/admin/EditBioDialog";
 import { DeleteBarberButton } from "@/features/admin/DeleteBarberButton";
+import { SendInstallReminderButton } from "@/features/admin/SendInstallReminderButton";
 import { toggleBarberActive } from "@/app/admin/actions";
 import { cn } from "@/lib/utils";
 
@@ -146,6 +147,7 @@ export function AdminBarberList({ barbers }: { barbers: AdminBarberItem[] }) {
                 <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0">
                   <EditBioDialog barberId={barber.id} fullName={barber.fullName} bio={barber.bio} />
                   <ResetPasswordButton barberId={barber.id} fullName={barber.fullName} />
+                  <SendInstallReminderButton barberId={barber.id} fullName={barber.fullName} />
                   <ConfirmActionButton
                     label={barber.active ? "Deaktiv et" : "Aktiv et"}
                     variant={barber.active ? "destructive" : "default"}
