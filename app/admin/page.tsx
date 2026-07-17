@@ -54,6 +54,13 @@ export default async function AdminPage() {
       currency: COUNTRY_CURRENCY[country],
       country,
       bio: barber.bio ?? "",
+      salonName: barber.salonName ?? "",
+      address: barber.address ?? "",
+      instagramUrl: barber.instagramUrl ?? "",
+      tiktokUrl: barber.tiktokUrl ?? "",
+      youtubeUrl: barber.youtubeUrl ?? "",
+      facebookUrl: barber.facebookUrl ?? "",
+      liveOn: barber.liveOn ?? "",
       createdAtDisplay: formatDateDisplay(barber.createdAt.toISOString().slice(0, 10)),
       isOnline: isOnline(lastActiveAt),
       isNew: isNewSince(barber.createdAt, NEW_WITHIN_DAYS),
@@ -105,8 +112,8 @@ export default async function AdminPage() {
               <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary sm:size-11">
                 <stat.icon className="size-4 sm:size-5" />
               </div>
-              <div>
-                <p className="text-xl font-semibold sm:text-2xl">{stat.value}</p>
+              <div className="min-w-0">
+                <p className="text-xl font-semibold break-words sm:text-2xl">{stat.value}</p>
                 <p className="text-xs text-muted-foreground sm:text-sm">{stat.label}</p>
               </div>
             </CardContent>

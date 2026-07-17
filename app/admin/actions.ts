@@ -1,11 +1,12 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
+import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentAdmin } from "@/lib/auth/session";
 import { hashPassword } from "@/lib/auth/password";
-import { profileSchema } from "@/lib/validation/profile";
+import { profileSchema, type ProfileInput } from "@/lib/validation/profile";
 import { sendPushToBarber } from "@/lib/push";
 
 type ActionResult = { success: true } | { success: false; error: string };
@@ -84,20 +85,47 @@ export async function sendInstallAppReminder(barberId: string): Promise<ActionRe
   return { success: true };
 }
 
-export async function updateBarberBio(barberId: string, bio: string): Promise<ActionResult> {
+export async function updateBarberProfile(
+  barberId: string,
+  input: ProfileInput & { email: string }
+): Promise<ActionResult> {
   const admin = await getCurrentAdmin();
   if (!admin) return { success: false, error: "Səlahiyyətiniz yoxdur." };
 
-  const parsed = profileSchema.shape.bio.safeParse(bio);
-  if (!parsed.success) return { success: false, error: "Mətn 500 simvoldan uzun ola bilməz." };
+  const { email, ...profileInput } = input;
+  const parsed = profileSchema.safeParse(profileInput);
+  if (!parsed.success) return { success: false, error: "Məlumatlar düzgün deyil." };
+
+  const emailParsed = z.string().trim().toLowerCase().email("Düzgün email daxil edin").safeParse(email);
+  if (!emailParsed.success) return { success: false, error: "Düzgün email daxil edin." };
 
   const barber = await prisma.barberProfile.findUnique({ where: { id: barberId } });
   if (!barber) return { success: false, error: "Bərbər tapılmadı." };
 
-  await prisma.barberProfile.update({
-    where: { id: barberId },
-    data: { bio: parsed.data || null },
-  });
+  const existingEmail = await prisma.user.findUnique({ where: { email: emailParsed.data } });
+  if (existingEmail && existingEmail.id !== barber.userId) {
+    return { success: false, error: "Bu email artıq başqa hesabda istifadə olunub." };
+  }
+
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: barber.userId }, data: { email: emailParsed.data } }),
+    prisma.barberProfile.update({
+      where: { id: barberId },
+      data: {
+        fullName: parsed.data.fullName,
+        salonName: parsed.data.salonName || null,
+        phone: parsed.data.phone,
+        city: parsed.data.city,
+        address: parsed.data.address || null,
+        bio: parsed.data.bio || null,
+        instagramUrl: parsed.data.instagramUrl || null,
+        tiktokUrl: parsed.data.tiktokUrl || null,
+        youtubeUrl: parsed.data.youtubeUrl || null,
+        facebookUrl: parsed.data.facebookUrl || null,
+        liveOn: parsed.data.liveOn || null,
+      },
+    }),
+  ]);
 
   revalidatePath("/admin");
   revalidatePath(`/barber/${barber.slug}`);

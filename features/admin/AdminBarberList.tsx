@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConfirmActionButton } from "@/features/dashboard/ConfirmActionButton";
 import { ResetPasswordButton } from "@/features/admin/ResetPasswordButton";
-import { EditBioDialog } from "@/features/admin/EditBioDialog";
+import { EditBarberDialog } from "@/features/admin/EditBarberDialog";
 import { DeleteBarberButton } from "@/features/admin/DeleteBarberButton";
 import { SendInstallReminderButton } from "@/features/admin/SendInstallReminderButton";
 import { toggleBarberActive } from "@/app/admin/actions";
@@ -35,6 +35,13 @@ export type AdminBarberItem = {
   currency: string;
   country: BarberCountry;
   bio: string;
+  salonName: string;
+  address: string;
+  instagramUrl: string;
+  tiktokUrl: string;
+  youtubeUrl: string;
+  facebookUrl: string;
+  liveOn: string;
   createdAtDisplay: string;
   isOnline: boolean;
   isNew: boolean;
@@ -168,7 +175,7 @@ export function AdminBarberList({ barbers }: { barbers: AdminBarberItem[] }) {
         <div className="flex flex-col gap-3">
           {filtered.map((barber) => (
             <Card key={barber.id}>
-              <CardContent className="flex flex-wrap items-start justify-between gap-3">
+              <CardContent className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
                 <div className="flex min-w-0 gap-3">
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-semibold text-primary">
                     {barber.fullName.charAt(0).toUpperCase()}
@@ -220,11 +227,12 @@ export function AdminBarberList({ barbers }: { barbers: AdminBarberItem[] }) {
                     )}
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
+                <div className="flex w-full items-center gap-2 sm:w-auto sm:shrink-0">
                   <ConfirmActionButton
                     label={barber.active ? "Deaktiv et" : "Aktiv et"}
                     variant={barber.active ? "destructive" : "default"}
                     disabled={isPending}
+                    className="flex-1 sm:flex-initial"
                     title={barber.active ? "Bərbəri deaktiv edirsiniz?" : "Bərbəri aktiv edirsiniz?"}
                     description={
                       barber.active
@@ -248,7 +256,23 @@ export function AdminBarberList({ barbers }: { barbers: AdminBarberItem[] }) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <div className="flex flex-col items-stretch gap-1 [&_button]:w-full [&_button]:justify-start">
-                        <EditBioDialog barberId={barber.id} fullName={barber.fullName} bio={barber.bio} />
+                        <EditBarberDialog
+                          barberId={barber.id}
+                          initialValues={{
+                            fullName: barber.fullName,
+                            email: barber.email,
+                            phone: barber.phone,
+                            salonName: barber.salonName,
+                            city: barber.city,
+                            address: barber.address,
+                            bio: barber.bio,
+                            instagramUrl: barber.instagramUrl,
+                            tiktokUrl: barber.tiktokUrl,
+                            youtubeUrl: barber.youtubeUrl,
+                            facebookUrl: barber.facebookUrl,
+                            liveOn: barber.liveOn,
+                          }}
+                        />
                         <ResetPasswordButton barberId={barber.id} fullName={barber.fullName} />
                         <SendInstallReminderButton barberId={barber.id} fullName={barber.fullName} />
                         <DropdownMenuSeparator />

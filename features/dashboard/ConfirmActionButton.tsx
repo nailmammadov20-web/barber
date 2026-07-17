@@ -24,6 +24,7 @@ export function ConfirmActionButton({
   variant,
   size = "sm",
   disabled,
+  className,
   onConfirm,
 }: {
   label: React.ReactNode;
@@ -34,6 +35,7 @@ export function ConfirmActionButton({
   variant?: "default" | "outline" | "destructive";
   size?: "sm" | "icon-sm";
   disabled?: boolean;
+  className?: string;
   onConfirm: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -43,7 +45,7 @@ export function ConfirmActionButton({
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger
         render={
-          <Button size={size} variant={variant} disabled={disabled} aria-label={ariaLabel}>
+          <Button size={size} variant={variant} disabled={disabled} aria-label={ariaLabel} className={className}>
             {label}
           </Button>
         }
