@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,6 @@ export function MessagesThread() {
   const [messages, setMessages] = useState<MessageItem[] | null>(null);
   const [body, setBody] = useState("");
   const [isPending, startTransition] = useTransition();
-  const bottomRef = useRef<HTMLDivElement>(null);
 
   function load() {
     startTransition(async () => {
@@ -30,10 +29,6 @@ export function MessagesThread() {
     const interval = setInterval(load, POLL_INTERVAL_MS);
     return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: "end" });
-  }, [messages]);
 
   function handleSend() {
     const trimmed = body.trim();
@@ -52,13 +47,13 @@ export function MessagesThread() {
 
   return (
     <div className="flex flex-col rounded-xl border bg-card">
-      <div className="flex max-h-[26rem] min-h-[10rem] flex-col justify-end gap-2 overflow-y-auto p-4">
+      <div className="flex max-h-[26rem] min-h-[10rem] flex-col-reverse gap-2 overflow-y-auto p-4">
         {messages === null ? (
           <p className="text-sm text-muted-foreground">{t.loading}</p>
         ) : messages.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t.empty}</p>
         ) : (
-          messages.map((message) => (
+          [...messages].reverse().map((message) => (
             <div
               key={message.id}
               className={cn("flex", message.sender === "BARBER" ? "justify-end" : "justify-start")}
@@ -92,7 +87,6 @@ export function MessagesThread() {
             </div>
           ))
         )}
-        <div ref={bottomRef} />
       </div>
 
       {/* Fixed to the true viewport bottom on mobile (same technique the

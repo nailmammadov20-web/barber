@@ -55,7 +55,6 @@ export function AdminMessagesView() {
   const [body, setBody] = useState("");
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
-  const bottomRef = useRef<HTMLDivElement>(null);
   const didPreselect = useRef(false);
 
   function loadConversations() {
@@ -97,10 +96,6 @@ export function AdminMessagesView() {
     const interval = setInterval(() => loadThread(selected.barberId), POLL_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [selected]);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: "end" });
-  }, [messages]);
 
   function openConversation(conversation: ConversationItem) {
     setMessages(null);
@@ -226,7 +221,7 @@ export function AdminMessagesView() {
               <p className="truncate font-medium">{selected.fullName}</p>
             </div>
 
-            <div className="flex flex-1 flex-col justify-end gap-2 overflow-y-auto p-4">
+            <div className="flex flex-1 flex-col-reverse gap-2 overflow-y-auto p-4">
               {messages === null ? (
                 <p className="text-sm text-muted-foreground">Yüklənir...</p>
               ) : messages.length === 0 ? (
@@ -235,7 +230,7 @@ export function AdminMessagesView() {
                   Hələ mesaj yoxdur. Aşağıdan yazın.
                 </div>
               ) : (
-                messages.map((message) => (
+                [...messages].reverse().map((message) => (
                   <div
                     key={message.id}
                     className={cn("flex", message.sender === "ADMIN" ? "justify-end" : "justify-start")}
@@ -261,7 +256,6 @@ export function AdminMessagesView() {
                   </div>
                 ))
               )}
-              <div ref={bottomRef} />
             </div>
 
             <div className="flex shrink-0 items-end gap-2 border-t p-3">
