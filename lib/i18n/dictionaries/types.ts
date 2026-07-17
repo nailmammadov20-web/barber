@@ -125,8 +125,6 @@ export type DictionaryShape = {
       servicesShort: string;
       hours: string;
       hoursShort: string;
-      messages: string;
-      messagesShort: string;
       settings: string;
       settingsShort: string;
       logout: string;
@@ -378,7 +376,7 @@ export type DictionaryShape = {
       placeholder: string;
       send: string;
       adminLabel: string;
-      back: string;
+      widgetLabel: string;
     };
   };
 };

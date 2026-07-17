@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentBarber } from "@/lib/auth/session";
 import { messageSchema } from "@/lib/validation/message";
@@ -66,7 +65,6 @@ export async function sendBarberMessage(body: string): Promise<ActionResult> {
     url: "/admin/messages",
   });
 
-  revalidatePath("/dashboard/messages");
   return { success: true };
 }
 

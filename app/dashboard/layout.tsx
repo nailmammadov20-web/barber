@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DashboardNav } from "@/features/dashboard/DashboardNav";
 import { PresencePing } from "@/features/dashboard/PresencePing";
 import { NotificationRequiredBanner } from "@/features/dashboard/NotificationRequiredBanner";
+import { SupportChatWidget } from "@/features/dashboard/SupportChatWidget";
 import { getLocale } from "@/lib/i18n/getLocale";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 
@@ -21,6 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pt-16 pb-20 md:flex-row md:pt-8 md:pb-8">
       <PresencePing />
+      <SupportChatWidget />
       <aside className="flex flex-col gap-4 md:w-60">
         <div className="flex items-center gap-3 rounded-xl border bg-card px-3 py-3">
           {session.barber.photoUrl ? (

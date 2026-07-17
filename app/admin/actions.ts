@@ -282,7 +282,7 @@ export async function sendAdminMessage(barberId: string, body: string): Promise<
   await sendPushToBarber(barberId, {
     title: "Admindən yeni mesaj",
     body: parsed.data.body.slice(0, 120),
-    url: "/dashboard/messages",
+    url: "/dashboard",
   });
 
   revalidatePath("/admin/messages");

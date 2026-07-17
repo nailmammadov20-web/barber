@@ -143,8 +143,6 @@ const dictionary: DictionaryShape = {
       servicesShort: "Xidmət",
       hours: "İş saatları",
       hoursShort: "Saatlar",
-      messages: "Mesajlar",
-      messagesShort: "Mesajlar",
       settings: "Tənzimləmələr",
       settingsShort: "Ayarlar",
       logout: "Çıxış",
@@ -410,7 +408,7 @@ const dictionary: DictionaryShape = {
       placeholder: "Mesajınızı yazın...",
       send: "Göndər",
       adminLabel: "Admin",
-      back: "Geri",
+      widgetLabel: "Admin ilə əlaqə",
     },
   },
 };

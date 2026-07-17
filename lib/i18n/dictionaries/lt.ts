@@ -143,8 +143,6 @@ const dictionary: DictionaryShape = {
       servicesShort: "Paslauga",
       hours: "Darbo laikas",
       hoursShort: "Laikas",
-      messages: "Žinutės",
-      messagesShort: "Žinutės",
       settings: "Nustatymai",
       settingsShort: "Nustat.",
       logout: "Atsijungti",
@@ -411,7 +409,7 @@ const dictionary: DictionaryShape = {
       placeholder: "Rašykite žinutę...",
       send: "Siųsti",
       adminLabel: "Administratorius",
-      back: "Atgal",
+      widgetLabel: "Susisiekti su admin",
     },
   },
 };
