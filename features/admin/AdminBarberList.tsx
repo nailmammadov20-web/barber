@@ -12,6 +12,7 @@ import { ResetPasswordButton } from "@/features/admin/ResetPasswordButton";
 import { EditBarberDialog } from "@/features/admin/EditBarberDialog";
 import { DeleteBarberButton } from "@/features/admin/DeleteBarberButton";
 import { SendInstallReminderButton } from "@/features/admin/SendInstallReminderButton";
+import { ManageServicesDialog } from "@/features/admin/ManageServicesDialog";
 import { toggleBarberActive } from "@/app/admin/actions";
 import { COUNTRY_LABEL, type BarberCountry } from "@/lib/country";
 import { cn } from "@/lib/utils";
@@ -239,6 +240,7 @@ export function AdminBarberList({ barbers }: { barbers: AdminBarberItem[] }) {
                       liveOn: barber.liveOn,
                     }}
                   />
+                  <ManageServicesDialog barberId={barber.id} fullName={barber.fullName} currency={barber.currency} />
                   <ResetPasswordButton barberId={barber.id} fullName={barber.fullName} />
                   <SendInstallReminderButton barberId={barber.id} fullName={barber.fullName} />
                   <ConfirmActionButton

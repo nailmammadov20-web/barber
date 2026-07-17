@@ -7,10 +7,19 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentAdmin } from "@/lib/auth/session";
 import { hashPassword } from "@/lib/auth/password";
 import { profileSchema, type ProfileInput } from "@/lib/validation/profile";
+import { serviceSchema, type ServiceInput } from "@/lib/validation/service";
 import { sendPushToBarber } from "@/lib/push";
 
 type ActionResult = { success: true } | { success: false; error: string };
 type ResetPasswordResult = { success: true; newPassword: string } | { success: false; error: string };
+type BarberServiceItem = {
+  id: string;
+  name: string;
+  durationMinutes: number;
+  price: number;
+  active: boolean;
+};
+type ListServicesResult = { success: true; services: BarberServiceItem[] } | { success: false; error: string };
 
 export async function toggleBarberActive(barberId: string): Promise<ActionResult> {
   const admin = await getCurrentAdmin();
@@ -82,6 +91,84 @@ export async function sendInstallAppReminder(barberId: string): Promise<ActionRe
     url: "/dashboard/settings",
   });
 
+  return { success: true };
+}
+
+export async function getBarberServices(barberId: string): Promise<ListServicesResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+
+  const services = await prisma.service.findMany({
+    where: { barberId },
+    orderBy: { createdAt: "asc" },
+  });
+
+  return {
+    success: true,
+    services: services.map((service) => ({
+      id: service.id,
+      name: service.name,
+      durationMinutes: service.durationMinutes,
+      price: service.price,
+      active: service.active,
+    })),
+  };
+}
+
+export async function adminAddService(barberId: string, input: ServiceInput): Promise<ActionResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+
+  const parsed = serviceSchema.safeParse(input);
+  if (!parsed.success) return { success: false, error: "Məlumatlar düzgün deyil." };
+
+  const barber = await prisma.barberProfile.findUnique({ where: { id: barberId } });
+  if (!barber) return { success: false, error: "Bərbər tapılmadı." };
+
+  await prisma.service.create({ data: { ...parsed.data, barberId } });
+
+  revalidatePath("/admin");
+  revalidatePath(`/barber/${barber.slug}`);
+  return { success: true };
+}
+
+export async function adminToggleService(barberId: string, serviceId: string): Promise<ActionResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+
+  const service = await prisma.service.findFirst({ where: { id: serviceId, barberId } });
+  if (!service) return { success: false, error: "Xidmət tapılmadı." };
+
+  await prisma.service.update({ where: { id: serviceId }, data: { active: !service.active } });
+
+  const barber = await prisma.barberProfile.findUnique({ where: { id: barberId } });
+  revalidatePath("/admin");
+  if (barber) revalidatePath(`/barber/${barber.slug}`);
+  return { success: true };
+}
+
+export async function adminDeleteService(barberId: string, serviceId: string): Promise<ActionResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { success: false, error: "Səlahiyyətiniz yoxdur." };
+
+  const service = await prisma.service.findFirst({
+    where: { id: serviceId, barberId },
+    include: { _count: { select: { bookingServices: true } } },
+  });
+  if (!service) return { success: false, error: "Xidmət tapılmadı." };
+
+  if (service._count.bookingServices > 0) {
+    return {
+      success: false,
+      error: "Bu xidmətlə bağlı rezervasiyalar mövcud olduğu üçün silinə bilməz. Əvəzinə deaktiv edin.",
+    };
+  }
+
+  await prisma.service.delete({ where: { id: serviceId } });
+
+  const barber = await prisma.barberProfile.findUnique({ where: { id: barberId } });
+  revalidatePath("/admin");
+  if (barber) revalidatePath(`/barber/${barber.slug}`);
   return { success: true };
 }
 
