@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -43,6 +43,16 @@ export const metadata: Metadata = {
     // newer `mobile-web-app-capable` tag.
     "apple-mobile-web-app-capable": "yes",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Without this, Chrome/Android keeps the layout viewport (and dvh units)
+  // full-height when the on-screen keyboard opens and just overlays it —
+  // this makes the keyboard actually shrink the layout so chat composers
+  // stay reachable instead of stranded mid-page.
+  interactiveWidget: "resizes-content",
 };
 
 export default async function RootLayout({

@@ -52,7 +52,7 @@ export function MessagesThread() {
 
   return (
     <div className="flex flex-col rounded-xl border bg-card">
-      <div className="flex max-h-[55dvh] min-h-[40dvh] flex-col justify-end gap-2 overflow-y-auto p-4">
+      <div className="flex max-h-[26rem] min-h-[10rem] flex-col justify-end gap-2 overflow-y-auto p-4">
         {messages === null ? (
           <p className="text-sm text-muted-foreground">{t.loading}</p>
         ) : messages.length === 0 ? (
