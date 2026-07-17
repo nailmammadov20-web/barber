@@ -68,7 +68,7 @@ export function SupportChatWidget() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-card sm:inset-auto sm:right-6 sm:bottom-6 sm:h-[32rem] sm:w-96 sm:rounded-2xl sm:border sm:shadow-2xl">
+    <div className="fixed inset-0 z-[60] flex flex-col bg-card sm:inset-auto sm:right-6 sm:bottom-6 sm:h-[32rem] sm:w-96 sm:rounded-2xl sm:border sm:shadow-2xl">
       <div className="flex shrink-0 items-center justify-between border-b p-4">
         <div className="min-w-0">
           <p className="truncate font-semibold">{t.pageTitle}</p>
