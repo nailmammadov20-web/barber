@@ -410,6 +410,7 @@ const dictionary: DictionaryShape = {
       placeholder: "Mesajınızı yazın...",
       send: "Göndər",
       adminLabel: "Admin",
+      back: "Geri",
     },
   },
 };

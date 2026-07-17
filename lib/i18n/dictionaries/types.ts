@@ -378,6 +378,7 @@ export type DictionaryShape = {
       placeholder: string;
       send: string;
       adminLabel: string;
+      back: string;
     };
   };
 };

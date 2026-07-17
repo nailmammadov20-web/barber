@@ -95,7 +95,12 @@ export function MessagesThread() {
         <div ref={bottomRef} />
       </div>
 
-      <div className="flex shrink-0 items-end gap-2 border-t p-3">
+      {/* Fixed to the true viewport bottom on mobile (same technique the
+          tab bar uses) so it tracks correctly through every keyboard
+          resize instead of relying on a one-off scroll-into-view. The
+          tab bar is hidden on this route so there's nothing to stack on
+          top of. Reverts to normal in-card flow on desktop. */}
+      <div className="fixed inset-x-0 bottom-0 z-30 flex items-end gap-2 border-t bg-card px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:static md:z-auto md:px-3 md:pb-3">
         <Textarea
           value={body}
           onChange={(event) => setBody(event.target.value)}
@@ -113,6 +118,7 @@ export function MessagesThread() {
           <Send className="size-4" />
         </Button>
       </div>
+      <div className="h-20 shrink-0 md:hidden" />
     </div>
   );
 }

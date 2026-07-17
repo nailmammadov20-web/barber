@@ -411,6 +411,7 @@ const dictionary: DictionaryShape = {
       placeholder: "Rašykite žinutę...",
       send: "Siųsti",
       adminLabel: "Administratorius",
+      back: "Atgal",
     },
   },
 };

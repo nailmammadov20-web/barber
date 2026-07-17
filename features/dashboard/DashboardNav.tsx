@@ -22,6 +22,7 @@ export function DashboardNav() {
   const pathname = usePathname();
   const { nav } = useDictionary().dashboard;
   const unreadCount = useUnreadMessages();
+  const hideMobileTabBar = pathname === "/dashboard/messages";
 
   const NAV_ITEMS = [
     { href: "/dashboard", label: nav.overview, shortLabel: nav.overviewShort, icon: LayoutDashboard },
@@ -67,35 +68,39 @@ export function DashboardNav() {
         })}
       </nav>
 
-      {/* Mobile bottom tab bar */}
-      <nav
-        className="fixed inset-x-0 bottom-0 z-20 flex items-stretch justify-around border-t bg-background/95 backdrop-blur-sm md:hidden"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-      >
-        {NAV_ITEMS.map((item) => {
-          const isActive = isItemActive(pathname, item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "relative flex flex-1 flex-col items-center gap-0.5 py-2 text-[0.65rem] font-medium transition-colors",
-                isActive ? "text-primary" : "text-muted-foreground"
-              )}
-            >
-              <span className="relative">
-                <item.icon className="size-5" />
-                {!!item.badge && (
-                  <span className="absolute -top-1 -right-1.5 flex size-3.5 items-center justify-center rounded-full bg-destructive text-[0.55rem] font-semibold text-destructive-foreground">
-                    {item.badge > 9 ? "9+" : item.badge}
-                  </span>
+      {/* Mobile bottom tab bar — hidden on the messages page so the chat
+          composer can own the bottom edge above the keyboard instead of
+          stacking on top of this bar. */}
+      {!hideMobileTabBar && (
+        <nav
+          className="fixed inset-x-0 bottom-0 z-20 flex items-stretch justify-around border-t bg-background/95 backdrop-blur-sm md:hidden"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        >
+          {NAV_ITEMS.map((item) => {
+            const isActive = isItemActive(pathname, item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "relative flex flex-1 flex-col items-center gap-0.5 py-2 text-[0.65rem] font-medium transition-colors",
+                  isActive ? "text-primary" : "text-muted-foreground"
                 )}
-              </span>
-              {item.shortLabel}
-            </Link>
-          );
-        })}
-      </nav>
+              >
+                <span className="relative">
+                  <item.icon className="size-5" />
+                  {!!item.badge && (
+                    <span className="absolute -top-1 -right-1.5 flex size-3.5 items-center justify-center rounded-full bg-destructive text-[0.55rem] font-semibold text-destructive-foreground">
+                      {item.badge > 9 ? "9+" : item.badge}
+                    </span>
+                  )}
+                </span>
+                {item.shortLabel}
+              </Link>
+            );
+          })}
+        </nav>
+      )}
     </>
   );
 }
