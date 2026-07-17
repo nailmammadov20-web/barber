@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, MessageCircle, Search, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,13 +19,31 @@ import {
 
 const POLL_INTERVAL_MS = 8000;
 
-function formatTimestamp(iso: string): string {
+function formatBubbleTimestamp(iso: string): string {
   return new Date(iso).toLocaleString("az-AZ", {
     day: "2-digit",
     month: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function formatListTimestamp(iso: string): string {
+  const date = new Date(iso);
+  const now = new Date();
+  const isSameDay = date.toDateString() === now.toDateString();
+  if (isSameDay) {
+    return date.toLocaleTimeString("az-AZ", { hour: "2-digit", minute: "2-digit" });
+  }
+  return date.toLocaleDateString("az-AZ", { day: "2-digit", month: "2-digit" });
+}
+
+function Avatar({ name }: { name: string }) {
+  return (
+    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-semibold text-primary">
+      {name.charAt(0).toUpperCase()}
+    </div>
+  );
 }
 
 export function AdminMessagesView() {
@@ -111,55 +129,89 @@ export function AdminMessagesView() {
   );
 
   return (
-    <div className="grid min-h-[65vh] gap-4 overflow-hidden rounded-xl border bg-card sm:grid-cols-[280px_1fr]">
-      <div className={cn("flex flex-col overflow-y-auto border-r", selected && "hidden sm:flex")}>
-        <div className="border-b p-2">
-          <Input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Bərbər axtar..."
-            className="h-9"
-          />
+    <div className="grid h-[calc(100vh-16rem)] min-h-[26rem] gap-0 overflow-hidden rounded-xl border bg-card sm:grid-cols-[300px_1fr]">
+      <div className={cn("flex flex-col overflow-hidden border-r", selected && "hidden sm:flex")}>
+        <div className="shrink-0 border-b p-2">
+          <div className="relative">
+            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Bərbər axtar..."
+              className="h-9 pl-9"
+            />
+          </div>
         </div>
-        {conversations === null ? (
-          <p className="p-4 text-sm text-muted-foreground">Yüklənir...</p>
-        ) : filteredConversations.length === 0 ? (
-          <p className="p-4 text-sm text-muted-foreground">Bərbər tapılmadı.</p>
-        ) : (
-          filteredConversations.map((conversation) => (
-            <button
-              key={conversation.barberId}
-              type="button"
-              onClick={() => openConversation(conversation)}
-              className={cn(
-                "flex flex-col items-start gap-0.5 border-b px-4 py-3 text-left text-sm transition-colors hover:bg-muted",
-                selected?.barberId === conversation.barberId && "bg-muted"
-              )}
-            >
-              <div className="flex w-full items-center justify-between gap-2">
-                <span className="truncate font-medium">{conversation.fullName}</span>
-                {conversation.unreadCount > 0 && (
-                  <Badge className="shrink-0">{conversation.unreadCount}</Badge>
-                )}
-              </div>
-              <span className="w-full truncate text-xs text-muted-foreground">
-                {conversation.lastMessage
-                  ? `${conversation.lastSender === "ADMIN" ? "Siz: " : ""}${conversation.lastMessage}`
-                  : "Yazışma başlamayıb"}
-              </span>
-            </button>
-          ))
-        )}
+        <div className="flex-1 overflow-y-auto">
+          {conversations === null ? (
+            <p className="p-4 text-sm text-muted-foreground">Yüklənir...</p>
+          ) : filteredConversations.length === 0 ? (
+            <p className="p-4 text-sm text-muted-foreground">Bərbər tapılmadı.</p>
+          ) : (
+            filteredConversations.map((conversation) => {
+              const isActive = selected?.barberId === conversation.barberId;
+              const hasConversation = Boolean(conversation.lastMessage);
+              return (
+                <button
+                  key={conversation.barberId}
+                  type="button"
+                  onClick={() => openConversation(conversation)}
+                  className={cn(
+                    "flex w-full items-center gap-2.5 border-b border-l-2 border-l-transparent px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted",
+                    isActive && "border-l-primary bg-muted"
+                  )}
+                >
+                  <Avatar name={conversation.fullName} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className={cn(
+                          "truncate",
+                          hasConversation ? "font-medium" : "font-medium text-muted-foreground"
+                        )}
+                      >
+                        {conversation.fullName}
+                      </span>
+                      {conversation.lastMessageAt && (
+                        <span className="shrink-0 text-[0.7rem] text-muted-foreground">
+                          {formatListTimestamp(conversation.lastMessageAt)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className={cn(
+                          "truncate text-xs",
+                          hasConversation ? "text-muted-foreground" : "text-muted-foreground/60 italic"
+                        )}
+                      >
+                        {hasConversation
+                          ? `${conversation.lastSender === "ADMIN" ? "Siz: " : ""}${conversation.lastMessage}`
+                          : "Yazışma başlamayıb"}
+                      </span>
+                      {conversation.unreadCount > 0 && (
+                        <Badge className="h-5 shrink-0 min-w-5 justify-center rounded-full px-1">
+                          {conversation.unreadCount}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
       </div>
 
-      <div className={cn("flex flex-col", !selected && "hidden sm:flex")}>
+      <div className={cn("flex flex-col overflow-hidden", !selected && "hidden sm:flex")}>
         {!selected ? (
-          <div className="flex flex-1 items-center justify-center p-6 text-sm text-muted-foreground">
+          <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center text-sm text-muted-foreground">
+            <MessageCircle className="size-8 text-muted-foreground/40" />
             Yazışmaya başlamaq üçün soldan bərbər seçin.
           </div>
         ) : (
           <>
-            <div className="flex items-center gap-2 border-b px-4 py-3">
+            <div className="flex shrink-0 items-center gap-2 border-b px-4 py-3">
               <Button
                 type="button"
                 size="icon-sm"
@@ -170,6 +222,7 @@ export function AdminMessagesView() {
               >
                 <ArrowLeft className="size-4" />
               </Button>
+              <Avatar name={selected.fullName} />
               <p className="truncate font-medium">{selected.fullName}</p>
             </div>
 
@@ -177,7 +230,10 @@ export function AdminMessagesView() {
               {messages === null ? (
                 <p className="text-sm text-muted-foreground">Yüklənir...</p>
               ) : messages.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Hələ mesaj yoxdur.</p>
+                <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center text-sm text-muted-foreground">
+                  <MessageCircle className="size-8 text-muted-foreground/40" />
+                  Hələ mesaj yoxdur. Aşağıdan yazın.
+                </div>
               ) : (
                 messages.map((message) => (
                   <div
@@ -199,7 +255,7 @@ export function AdminMessagesView() {
                           message.sender === "ADMIN" ? "text-right" : "text-left"
                         )}
                       >
-                        {formatTimestamp(message.createdAt)}
+                        {formatBubbleTimestamp(message.createdAt)}
                       </p>
                     </div>
                   </div>
@@ -208,7 +264,7 @@ export function AdminMessagesView() {
               <div ref={bottomRef} />
             </div>
 
-            <div className="flex items-end gap-2 border-t p-3">
+            <div className="flex shrink-0 items-end gap-2 border-t p-3">
               <Textarea
                 value={body}
                 onChange={(event) => setBody(event.target.value)}
