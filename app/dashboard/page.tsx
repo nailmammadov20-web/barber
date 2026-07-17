@@ -11,6 +11,7 @@ import { SetupChecklist } from "@/features/dashboard/SetupChecklist";
 import { BookingsList } from "@/features/dashboard/BookingsList";
 import { OverdueBookingsPrompt } from "@/features/dashboard/OverdueBookingsPrompt";
 import { StatusPromoModal } from "@/features/dashboard/StatusPromoModal";
+import { InstallAppButton } from "@/features/dashboard/InstallAppButton";
 import { getLocale } from "@/lib/i18n/getLocale";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 
@@ -64,6 +65,8 @@ export default async function DashboardOverviewPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      <InstallAppButton />
+
       <div>
         <h1 className="text-2xl font-semibold">{overview.title}</h1>
         <p className="text-sm text-muted-foreground">
